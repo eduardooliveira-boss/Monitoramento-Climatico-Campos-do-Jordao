@@ -167,6 +167,20 @@
             border-bottom: none;
         }
 
+        /* Cores claras aplicadas nas tags de nível de risco da tabela */
+        .table-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85em;
+            display: inline-block;
+            text-align: center;
+        }
+        .table-baixo { background-color: #d4efdf; color: #1e8449; }
+        .table-moderado { background-color: #f9e79f; color: #7d6608; }
+        .table-alto { background-color: #f5cba7; color: #7e5109; }
+        .table-crítico { background-color: #f5b7b1; color: #78281f; }
+
         /* Seção de Histórico Tabulado */
         .history-section {
             background: white;
@@ -410,7 +424,7 @@
                 const ventoVal = (15 + (idx * 2) % 25) + " km/h";
                 const pressaoVal = (1012 - (idx % 5)) + " hPa";
                 const uvVal = (idx % 2 === 0) ? "4 (Moderado)" : "6 (Alto)";
-                const riscoArr = ["Baixo", "Moderado", "Alto", "Crítico"];
+                const riscoArr = ["baixo", "moderado", "alto", "crítico"];
                 const riscoVal = riscoArr[(loopDate.getDate() + idx) % 4];
                 
                 historyRows.push({
@@ -438,6 +452,13 @@
                 if (filterBairro === 'todos' || row.neighborhood === filterBairro) {
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-name', row.neighborhood);
+                    
+                    // Definir classe CSS da cor clara correspondente ao risco na tabela
+                    let riskClass = "table-baixo";
+                    if (row.risk === "moderado") riskClass = "table-moderado";
+                    if (row.risk === "alto") riskClass = "table-alto";
+                    if (row.risk === "crítico") riskClass = "table-crítico";
+
                     tr.innerHTML = `
                         <td>📅 ${row.date}/2026</td>
                         <td>📍 ${row.neighborhood}</td>
@@ -445,7 +466,7 @@
                         <td>💨 ${row.wind}</td>
                         <td>🌡️ ${row.pressure}</td>
                         <td>☀️ ${row.uv}</td>
-                        <td><strong>${row.risk}</strong></td>
+                        <td><span class="table-badge ${riskClass}">${row.risk.toUpperCase()}</span></td>
                     `;
                     historyTableBody.appendChild(tr);
                 }
@@ -489,7 +510,7 @@
             
             historyRows.forEach(row => {
                 if (selectedValue === 'todos' || row.neighborhood === selectedValue) {
-                    csvContent += `${row.date}/2026,"${row.neighborhood}",${row.rain},${row.wind},${row.pressure},"${row.uv}",${row.risk}\n`;
+                    csvContent += `${row.date}/2026,"${row.neighborhood}",${row.rain},${row.wind},${row.pressure},"${row.uv}",${row.risk.toUpperCase()}\n`;
                 }
             });
 
