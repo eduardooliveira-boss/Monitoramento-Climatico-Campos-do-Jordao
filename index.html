@@ -32,15 +32,19 @@
             opacity: 0.9;
             font-size: 0.95em;
         }
-        /* Seleção de Bairro */
-        .filter-container {
+        /* Controles de Filtro e Exportação */
+        .controls-container {
             max-width: 1400px;
             margin: 0 auto 20px auto;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
         .filter-select {
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
             padding: 12px 15px;
             font-size: 1em;
             border: 2px solid #bdc3c7;
@@ -49,6 +53,21 @@
             background-color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             cursor: pointer;
+        }
+        .export-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: background 0.2s;
+        }
+        .export-btn:hover {
+            background-color: #219653;
         }
         .main-layout {
             display: flex;
@@ -63,13 +82,13 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 3px solid #fff;
         }
-        /* Grade para acomodar 4 cards por linha em telas grandes */
+        /* Grade para acomodar exatamente 4 cards por linha em telas grandes */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
         }
-        /* Cartões com dimensões otimizadas e cores claras de fundo */
+        /* Cartões com cores claras de fundo correspondentes ao risco */
         .card {
             padding: 15px;
             border-radius: 12px;
@@ -94,7 +113,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 1em;
+            font-size: 0.98em;
         }
         .badge {
             padding: 3px 8px;
@@ -164,6 +183,7 @@
         }
         .table-responsive {
             overflow-x: auto;
+            max-height: 450px;
         }
         table {
             width: 100%;
@@ -179,13 +199,21 @@
         th {
             background-color: #1b4d3e;
             color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         tr:hover {
             background-color: #f8f9fa;
         }
 
-        /* Responsividade para Celulares (1 coluna de cards) */
-        @media (max-width: 1024px) {
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 900px) {
             .grid-container {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -204,11 +232,12 @@
         <p>Campos do Jordão - SP | Monitoramento Unificado (<span id="current-date-header"></span>)</p>
     </header>
 
-    <!-- Caixa de Seleção para Filtrar o Bairro -->
-    <div class="filter-container">
-        <select id="neighborhoodSelect" class="filter-select" onchange="filterBySelect()">
+    <!-- Barra de Controles (Seleção de Bairro e Exportação) -->
+    <div class="controls-container">
+        <select id="neighborhoodSelect" class="filter-select" onchange="filterAll()">
             <option value="todos">📍 Exibir Todas as 30 Localidades</option>
         </select>
+        <button class="export-btn" onclick="exportFilteredData()">📥 Exportar Dados Filtrados (CSV)</button>
     </div>
 
     <div class="main-layout">
@@ -218,18 +247,20 @@
         <!-- Grade de Bairros (4 por linha no PC) -->
         <div class="grid-container" id="neighborhood-grid"></div>
 
-        <!-- Histórico Tabulado (Iniciando em 01/11/2026) -->
+        <!-- Histórico Tabulado (Iniciando em 01/11/2026, Decrescente) -->
         <div class="history-section">
             <h2>📊 Histórico de Medições Diárias (A partir de 01/11/2026)</h2>
             <div class="table-responsive">
-                <table>
+                <table id="history-table">
                     <thead>
                         <tr>
-                            <th>Data</th>
-                            <th>Localidade</th>
-                            <th>Chuva Acumulada</th>
-                            <th>Vento Médio</th>
-                            <th>Nível de Risco</th>
+                            <th>📅 Data</th>
+                            <th>📍 Localidade</th>
+                            <th>🌧️ Chuva</th>
+                            <th>💨 Vento</th>
+                            <th>🌡️ Pressão</th>
+                            <th>☀️ Índice UV</th>
+                            <th>⚠️ Nível de Risco</th>
                         </tr>
                     </thead>
                     <tbody id="history-table-body">
@@ -262,41 +293,48 @@
 
         // 30 Localidades REAIS de Campos do Jordão
         const locationsData = [
-            { id: 1, name: "Vila Capivari", lat: -22.7441, lng: -45.5898, risk: "crítico", rain: "95mm", wind: "40 km/h", uv: "3 (Baixo)", geo: "Risco de Alagamento", fc1: "Chuva Forte (80mm)", fc2: "Nublado com Chuva (30mm)", fc3: "Parcialmente Nublado (5mm)" },
-            { id: 2, name: "Vila Abernéssia", lat: -22.7383, lng: -45.5919, risk: "alto", rain: "60mm", wind: "30 km/h", uv: "4 (Moderado)", geo: "Atenção a alagamentos", fc1: "Chuva Moderada (45mm)", fc2: "Instável (20mm)", fc3: "Sol entre Nuvens (0mm)" },
-            { id: 3, name: "Vila Jaguaribe", lat: -22.7322, lng: -45.5765, risk: "moderado", rain: "40mm", wind: "25 km/h", uv: "5 (Moderado)", geo: "Moderado", fc1: "Chuva Isolada (25mm)", fc2: "Nublado (10mm)", fc3: "Ensolarado (0mm)" },
-            { id: 4, name: "Alto da Vila Inglesa", lat: -22.7562, lng: -45.5983, risk: "crítico", rain: "110mm", wind: "45 km/h", uv: "2 (Baixo)", geo: "Alto risco de deslizamento", fc1: "Temporal (90mm)", fc2: "Chuva Contínua (40mm)", fc3: "Nublado (10mm)" },
-            { id: 5, name: "Descansópolis", lat: -22.7214, lng: -45.5681, risk: "baixo", rain: "20mm", wind: "15 km/h", uv: "6 (Alto)", geo: "Mínimo", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 6, name: "Alto da Boa Vista", lat: -22.7291, lng: -45.5542, risk: "alto", rain: "75mm", wind: "50 km/h", uv: "4 (Moderado)", geo: "Vento forte e quedas de barreira", fc1: "Chuva Forte (60mm)", fc2: "Ventos Fortes (15mm)", fc3: "Nublado (0mm)" },
-            { id: 7, name: "Jardim Belvedere", lat: -22.7489, lng: -45.6012, risk: "baixo", rain: "25mm", wind: "20 km/h", uv: "7 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 8, name: "Jardim Miraflores", lat: -22.7350, lng: -45.5840, risk: "baixo", rain: "30mm", wind: "18 km/h", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
-            { id: 9, name: "Alto do Capivari", lat: -22.7520, lng: -45.5920, risk: "moderado", rain: "55mm", wind: "35 km/h", uv: "5 (Moderado)", geo: "Potencial queda de árvores", fc1: "Chuva Moderada (40mm)", fc2: "Instável (15mm)", fc3: "Sol com Nuvens (0mm)" },
-            { id: 10, name: "Bairro do Centro", lat: -22.7390, lng: -45.5900, risk: "moderado", rain: "50mm", wind: "22 km/h", uv: "4 (Moderado)", geo: "Atenção urbana", fc1: "Chuva Moderada (35mm)", fc2: "Nublado (10mm)", fc3: "Parcialmente Nublado (0mm)" },
-            { id: 11, name: "Bela Vista", lat: -22.7250, lng: -45.5850, risk: "baixo", rain: "35mm", wind: "20 km/h", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (20mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 12, name: "Cascatinha", lat: -22.7150, lng: -45.5700, risk: "alto", rain: "80mm", wind: "30 km/h", uv: "3 (Baixo)", geo: "Elevação de nível de curso d'água", fc1: "Chuva Forte (65mm)", fc2: "Chuva (20mm)", fc3: "Nublado (5mm)" },
-            { id: 13, name: "Vila Santo Antônio", lat: -22.7100, lng: -45.5600, risk: "crítico", rain: "120mm", wind: "35 km/h", uv: "2 (Baixo)", geo: "Risco iminente de alagamento", fc1: "Temporal (95mm)", fc2: "Chuva Forte (50mm)", fc3: "Nublado (10mm)" },
-            { id: 14, name: "Morro do Britador", lat: -22.7420, lng: -45.5980, risk: "crítico", rain: "130mm", wind: "40 km/h", uv: "2 (Baixo)", geo: "Risco severo de deslizamento", fc1: "Temporal Intenso (100mm)", fc2: "Chuva Contínua (60mm)", fc3: "Instável (15mm)" },
-            { id: 15, name: "Vila Nova", lat: -22.7480, lng: -45.6100, risk: "baixo", rain: "25mm", wind: "15 km/h", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 16, name: "Recanto Feliz", lat: -22.7550, lng: -45.6150, risk: "baixo", rain: "20mm", wind: "12 km/h", uv: "6 (Alto)", geo: "Mínimo", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
-            { id: 17, name: "Jardim Embaixador", lat: -22.7600, lng: -45.6200, risk: "baixo", rain: "28mm", wind: "18 km/h", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 18, name: "Vila Albertina", lat: -22.7200, lng: -45.5950, risk: "baixo", rain: "32mm", wind: "20 km/h", uv: "5 (Moderado)", geo: "Baixo", fc1: "Chuva Fraca (18mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
-            { id: 19, name: "Horto Florestal", lat: -22.6850, lng: -45.4950, risk: "baixo", rain: "30mm", wind: "25 km/h", uv: "5 (Moderado)", geo: "Área preservada", fc1: "Chuva (20mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
-            { id: 20, name: "Vila Nadir", lat: -22.7300, lng: -45.6050, risk: "moderado", rain: "45mm", wind: "22 km/h", uv: "5 (Moderado)", geo: "Monitoramento preventivo", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
-            { id: 21, name: "Água Santa", lat: -22.7330, lng: -45.5890, risk: "moderado", rain: "48mm", wind: "24 km/h", uv: "4 (Moderado)", geo: "Monitoramento urbano", fc1: "Chuva Moderada (32mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
-            { id: 22, name: "Jardim Itapeva", lat: -22.7700, lng: -45.6300, risk: "baixo", rain: "22mm", wind: "30 km/h", uv: "7 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (10mm)", fc2: "Sol com Ventos (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 23, name: "Alto do Lajeado", lat: -22.7650, lng: -45.6100, risk: "moderado", rain: "48mm", wind: "35 km/h", uv: "5 (Moderado)", geo: "Atenção a ventos fortes", fc1: "Chuva (30mm)", fc2: "Ventos (10mm)", fc3: "Sol (0mm)" },
-            { id: 24, name: "Country Club", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
-            { id: 25, name: "Atalaia", lat: -22.7280, lng: -45.5700, risk: "moderado", rain: "42mm", wind: "20 km/h", uv: "5 (Moderado)", geo: "Monitoramento", fc1: "Chuva (25mm)", fc2: "Nublado (8mm)", fc3: "Sol (0mm)" },
-            { id: 26, name: "Floresta Negra", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", uv: "3 (Baixo)", geo: "Risco de encosta", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
-            { id: 27, name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800, risk: "alto", rain: "90mm", wind: "55 km/h", uv: "3 (Baixo)", geo: "Ventos fortes e neblina densa", fc1: "Temporal de Montanha (75mm)", fc2: "Ventos Fortes (20mm)", fc3: "Nublado (5mm)" },
-            { id: 28, name: "Vale do Sol", lat: -22.7080, lng: -45.5650, risk: "moderado", rain: "45mm", wind: "25 km/h", uv: "5 (Moderado)", geo: "Atenção a declives", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
-            { id: 29, name: "Vila Campista", lat: -22.6761, lng: -45.5932, risk: "moderado", rain: "42mm", wind: "28 km/h", uv: "4 (Moderado)", geo: "Monitoramento de encosta", fc1: "Chuva (28mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
-            { id: 30, name: "Colinas do Capivari", lat: -22.7500, lng: -45.5850, risk: "baixo", rain: "28mm", wind: "16 km/h", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (14mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" }
+            { id: 1, name: "Água Santa", lat: -22.7330, lng: -45.5890, risk: "moderado", rain: "48mm", wind: "24 km/h", pressure: "1012 hPa", uv: "4 (Moderado)", geo: "Monitoramento urbano", fc1: "Chuva Moderada (32mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
+            { id: 2, name: "Alto da Boa Vista", lat: -22.7291, lng: -45.5542, risk: "alto", rain: "75mm", wind: "50 km/h", pressure: "1009 hPa", uv: "4 (Moderado)", geo: "Vento forte e quedas de barreira", fc1: "Chuva Forte (60mm)", fc2: "Ventos Fortes (15mm)", fc3: "Nublado (0mm)" },
+            { id: 3, name: "Alto da Vila Inglesa", lat: -22.7562, lng: -45.5983, risk: "crítico", rain: "110mm", wind: "45 km/h", pressure: "1007 hPa", uv: "2 (Baixo)", geo: "Alto risco de deslizamento", fc1: "Temporal (90mm)", fc2: "Chuva Contínua (40mm)", fc3: "Nublado (10mm)" },
+            { id: 4, name: "Alto do Capivari", lat: -22.7520, lng: -45.5920, risk: "moderado", rain: "55mm", wind: "35 km/h", pressure: "1010 hPa", uv: "5 (Moderado)", geo: "Potencial queda de árvores", fc1: "Chuva Moderada (40mm)", fc2: "Instável (15mm)", fc3: "Sol com Nuvens (0mm)" },
+            { id: 5, name: "Alto do Lajeado", lat: -22.7650, lng: -45.6100, risk: "moderado", rain: "48mm", wind: "35 km/h", pressure: "1011 hPa", uv: "5 (Moderado)", geo: "Atenção a ventos fortes", fc1: "Chuva (30mm)", fc2: "Ventos (10mm)", fc3: "Sol (0mm)" },
+            { id: 6, name: "Atalaia", lat: -22.7280, lng: -45.5700, risk: "moderado", rain: "42mm", wind: "20 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Monitoramento", fc1: "Chuva (25mm)", fc2: "Nublado (8mm)", fc3: "Sol (0mm)" },
+            { id: 7, name: "Bairro do Centro", lat: -22.7390, lng: -45.5900, risk: "moderado", rain: "50mm", wind: "22 km/h", pressure: "1012 hPa", uv: "4 (Moderado)", geo: "Atenção urbana", fc1: "Chuva Moderada (35mm)", fc2: "Nublado (10mm)", fc3: "Parcialmente Nublado (0mm)" },
+            { id: 8, name: "Bela Vista", lat: -22.7250, lng: -45.5850, risk: "baixo", rain: "35mm", wind: "20 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (20mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 9, name: "Cascatinha", lat: -22.7150, lng: -45.5700, risk: "alto", rain: "80mm", wind: "30 km/h", pressure: "1010 hPa", uv: "3 (Baixo)", geo: "Elevação de nível de curso d'água", fc1: "Chuva Forte (65mm)", fc2: "Chuva (20mm)", fc3: "Nublado (5mm)" },
+            { id: 10, name: "Colinas do Capivari", lat: -22.7500, lng: -45.5850, risk: "baixo", rain: "28mm", wind: "16 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (14mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 11, name: "Country Club", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 12, name: "Descansópolis", lat: -22.7214, lng: -45.5681, risk: "baixo", rain: "20mm", wind: "15 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Mínimo", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 13, name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 14, name: "Floresta Negra", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Risco de encosta", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
+            { id: 15, name: "Horto Florestal", lat: -22.6850, lng: -45.4950, risk: "baixo", rain: "30mm", wind: "25 km/h", pressure: "1014 hPa", uv: "5 (Moderado)", geo: "Área preservada", fc1: "Chuva (20mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
+            { id: 16, name: "Jardim Belvedere", lat: -22.7489, lng: -45.6012, risk: "baixo", rain: "25mm", wind: "20 km/h", pressure: "1013 hPa", uv: "7 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 17, name: "Jardim Embaixador", lat: -22.7600, lng: -45.6200, risk: "baixo", rain: "28mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 18, name: "Jardim Itapeva", lat: -22.7700, lng: -45.6300, risk: "baixo", rain: "22mm", wind: "30 km/h", pressure: "1014 hPa", uv: "7 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (10mm)", fc2: "Sol com Ventos (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 19, name: "Jardim Miraflores", lat: -22.7350, lng: -45.5840, risk: "baixo", rain: "30mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
+            { id: 20, name: "Morro do Britador", lat: -22.7420, lng: -45.5980, risk: "crítico", rain: "130mm", wind: "40 km/h", pressure: "1006 hPa", uv: "2 (Baixo)", geo: "Risco severo de deslizamento", fc1: "Temporal Intenso (100mm)", fc2: "Chuva Contínua (60mm)", fc3: "Instável (15mm)" },
+            { id: 21, name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800, risk: "alto", rain: "90mm", wind: "55 km/h", pressure: "1006 hPa", uv: "3 (Baixo)", geo: "Ventos fortes e neblina densa", fc1: "Temporal de Montanha (75mm)", fc2: "Ventos Fortes (20mm)", fc3: "Nublado (5mm)" },
+            { id: 22, name: "Piracuama", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Risco de encosta", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
+            { id: 23, name: "Recanto Feliz", lat: -22.7550, lng: -45.6150, risk: "baixo", rain: "20mm", wind: "12 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Mínimo", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 24, name: "Retiro", lat: -22.7000, lng: -45.5400, risk: "baixo", rain: "18mm", wind: "15 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuvisco (8mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 25, name: "São Cristóvão", lat: -22.7220, lng: -45.5820, risk: "baixo", rain: "30mm", wind: "19 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 26, name: "Vale do Sol", lat: -22.7080, lng: -45.5650, risk: "moderado", rain: "45mm", wind: "25 km/h", pressure: "1011 hPa", uv: "5 (Moderado)", geo: "Atenção a declives", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
+            { id: 27, name: "Vila Abernéssia", lat: -22.7383, lng: -45.5919, risk: "alto", rain: "60mm", wind: "30 km/h", pressure: "1011 hPa", uv: "4 (Moderado)", geo: "Atenção a alagamentos", fc1: "Chuva Moderada (45mm)", fc2: "Instável (20mm)", fc3: "Sol entre Nuvens (0mm)" },
+            { id: 28, name: "Vila Albertina", lat: -22.7200, lng: -45.5950, risk: "baixo", rain: "32mm", wind: "20 km/h", pressure: "1013 hPa", uv: "5 (Moderado)", geo: "Baixo", fc1: "Chuva Fraca (18mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
+            { id: 29, name: "Vila Campista", lat: -22.6761, lng: -45.5932, risk: "moderado", rain: "42mm", wind: "28 km/h", pressure: "1011 hPa", uv: "4 (Moderado)", geo: "Monitoramento de encosta", fc1: "Chuva (28mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
+            { id: 30, name: "Vila Capivari", lat: -22.7441, lng: -45.5898, risk: "crítico", rain: "95mm", wind: "40 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Risco de Alagamento", fc1: "Chuva Forte (80mm)", fc2: "Nublado com Chuva (30mm)", fc3: "Parcialmente Nublado (5mm)" },
+            { id: 31, name: "Vila Jaguaribe", lat: -22.7322, lng: -45.5765, risk: "moderado", rain: "40mm", wind: "25 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Moderado", fc1: "Chuva Isolada (25mm)", fc2: "Nublado (10mm)", fc3: "Ensolarado (0mm)" },
+            { id: 32, name: "Vila Nadir", lat: -22.7300, lng: -45.6050, risk: "moderado", rain: "45mm", wind: "22 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Monitoramento preventivo", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
+            { id: 33, name: "Vila Nova", lat: -22.7480, lng: -45.6100, risk: "baixo", rain: "25mm", wind: "15 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 34, name: "Vila Santo Antônio", lat: -22.7100, lng: -45.5600, risk: "crítico", rain: "120mm", wind: "35 km/h", pressure: "1007 hPa", uv: "2 (Baixo)", geo: "Risco iminente de alagamento", fc1: "Temporal (95mm)", fc2: "Chuva Forte (50mm)", fc3: "Nublado (10mm)" }
         ];
+
+        // Ordenar rigorosamente em ordem alfabética para o Select
+        const sortedLocations = [...locationsData].sort((a, b) => a.name.localeCompare(b.name));
 
         // Popular o select de bairros
         const selectElement = document.getElementById('neighborhoodSelect');
-        locationsData.forEach(loc => {
+        sortedLocations.forEach(loc => {
             const option = document.createElement('option');
             option.value = loc.name;
             option.textContent = loc.name;
@@ -346,6 +384,7 @@
                 <div class="section-title">🌤️ Condições Hoje (${dateTodayStr})</div>
                 <div class="metric"><span>🌧️ Chuva:</span> <strong>${loc.rain}</strong></div>
                 <div class="metric"><span>💨 Vento:</span> <strong>${loc.wind}</strong></div>
+                <div class="metric"><span>🌡️ Pressão:</span> <strong>${loc.pressure}</strong></div>
                 <div class="metric"><span>☀️ UV:</span> <strong>${loc.uv}</strong></div>
                 <div class="metric"><span>⚠️ Risco:</span> <strong>${loc.geo}</strong></div>
 
@@ -359,11 +398,68 @@
             gridContainer.appendChild(card);
         });
 
-        // Função de Filtro via Select
-        function filterBySelect() {
-            const selectedValue = document.getElementById('neighborhoodSelect').value;
-            const cards = document.querySelectorAll('.card');
+        // Gerar histórico diário a partir de 01/11/2026 em ordem decrescente
+        const startDate = new Date(2026, 10, 1); // 01/11/2026
+        const historyRows = [];
+        
+        let loopDate = new Date(startDate);
+        while(loopDate <= today) {
+            const dateStr = formatDate(loopDate);
+            locationsData.forEach((loc, idx) => {
+                const chuvaVal = (10 + (loopDate.getDate() * 2 + idx) % 80) + "mm";
+                const ventoVal = (15 + (idx * 2) % 25) + " km/h";
+                const pressaoVal = (1012 - (idx % 5)) + " hPa";
+                const uvVal = (idx % 2 === 0) ? "4 (Moderado)" : "6 (Alto)";
+                const riscoArr = ["Baixo", "Moderado", "Alto", "Crítico"];
+                const riscoVal = riscoArr[(loopDate.getDate() + idx) % 4];
+                
+                historyRows.push({
+                    rawDate: new Date(loopDate),
+                    date: dateStr,
+                    neighborhood: loc.name,
+                    rain: chuvaVal,
+                    wind: ventoVal,
+                    pressure: pressaoVal,
+                    uv: uvVal,
+                    risk: riscoVal
+                });
+            });
+            loopDate.setDate(loopDate.getDate() + 1);
+        }
 
+        // Ordenar histórico por data decrescente (mais recente primeiro)
+        historyRows.sort((a, b) => b.rawDate - a.rawDate);
+
+        const historyTableBody = document.getElementById('history-table-body');
+
+        function renderHistoryTable(filterBairro = 'todos') {
+            historyTableBody.innerHTML = '';
+            historyRows.forEach(row => {
+                if (filterBairro === 'todos' || row.neighborhood === filterBairro) {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-name', row.neighborhood);
+                    tr.innerHTML = `
+                        <td>📅 ${row.date}/2026</td>
+                        <td>📍 ${row.neighborhood}</td>
+                        <td>🌧️ ${row.rain}</td>
+                        <td>💨 ${row.wind}</td>
+                        <td>🌡️ ${row.pressure}</td>
+                        <td>☀️ ${row.uv}</td>
+                        <td><strong>${row.risk}</strong></td>
+                    `;
+                    historyTableBody.appendChild(tr);
+                }
+            });
+        }
+
+        renderHistoryTable('todos');
+
+        // Função unificada de filtro (Cards, Mapa e Tabela)
+        function filterAll() {
+            const selectedValue = document.getElementById('neighborhoodSelect').value;
+            
+            // Filtrar Cards
+            const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
                 const name = card.getAttribute('data-name');
                 if (selectedValue === 'todos' || name === selectedValue) {
@@ -373,6 +469,10 @@
                 }
             });
 
+            // Filtrar Tabela
+            renderHistoryTable(selectedValue);
+
+            // Ajustar Mapa
             if (selectedValue !== 'todos' && markersMap[selectedValue]) {
                 const marker = markersMap[selectedValue];
                 map.setView(marker.getLatLng(), 15);
@@ -382,50 +482,25 @@
             }
         }
 
-        // Popular Histórico Tabulado a partir de 01/11/2026 até a data atual
-        const historyTableBody = document.getElementById('history-table-body');
-        
-        // Gerador de histórico simulado consistente a partir de 01/11/2026
-        const startDate = new Date(2026, 10, 1); // 01/11/2026
-        const historyRows = [];
-        
-        let loopDate = new Date(startDate);
-        while(loopDate <= today) {
-            const dateStr = formatDate(loopDate);
-            // Pegar amostras de bairros representativos para o histórico diário
-            const sampleBairros = ["Vila Capivari", "Alto da Vila Inglesa", "Vila Abernéssia", "Horto Florestal", "Pico do Imbiri"];
+        // Função para exportar os dados atualmente visíveis como CSV
+        function exportFilteredData() {
+            const selectedValue = document.getElementById('neighborhoodSelect').value;
+            let csvContent = "data:text/csv;charset=utf-8,Data,Localidade,Chuva Acumulada,Vento Medio,Pressao Atmosferica,Indice UV,Nivel de Risco\n";
             
-            sampleBairros.forEach((bairro, idx) => {
-                // Gerar dados simulados coerentes com a data
-                const chuvaVal = (10 + (loopDate.getDate() * 2 + idx * 5) % 80) + "mm";
-                const ventoVal = (15 + (idx * 3) % 25) + " km/h";
-                const riscoArr = ["Baixo", "Moderado", "Alto", "Crítico"];
-                const riscoVal = riscoArr[(loopDate.getDate() + idx) % 4];
-                
-                historyRows.push({
-                    date: dateStr,
-                    neighborhood: bairro,
-                    rain: chuvaVal,
-                    wind: ventoVal,
-                    risk: riscoVal
-                });
+            historyRows.forEach(row => {
+                if (selectedValue === 'todos' || row.neighborhood === selectedValue) {
+                    csvContent += `${row.date}/2026,"${row.neighborhood}",${row.rain},${row.wind},${row.pressure},"${row.uv}",${row.risk}\n`;
+                }
             });
-            
-            loopDate.setDate(loopDate.getDate() + 1);
-        }
 
-        // Renderizar tabela do histórico (mais recentes primeiro)
-        historyRows.reverse().forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>📅 ${row.date}/2026</td>
-                <td>📍 ${row.neighborhood}</td>
-                <td>🌧️ ${row.rain}</td>
-                <td>💨 ${row.wind}</td>
-                <td><strong>${row.risk}</strong></td>
-            `;
-            historyTableBody.appendChild(tr);
-        });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `historico_climatico_${selectedValue === 'todos' ? 'todas_localidades' : selectedValue.toLowerCase().replace(/ /g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
