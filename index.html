@@ -33,6 +33,26 @@
             opacity: 0.9;
             font-size: 1.05em;
         }
+        /* Barra de Pesquisa */
+        .search-container {
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            text-align: center;
+        }
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #bdc3c7;
+            border-radius: 30px;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: border-color 0.3s;
+        }
+        .search-input:focus {
+            border-color: #1b4d3e;
+        }
         .main-layout {
             display: flex;
             flex-direction: column;
@@ -51,8 +71,8 @@
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
         }
+        /* Cartões com fundo claro correspondente ao risco */
         .card {
-            background: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
@@ -63,16 +83,16 @@
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.12);
         }
-        .card.risk-baixo { border-left-color: #27ae60; }
-        .card.risk-moderado { border-left-color: #f39c12; }
-        .card.risk-alto { border-left-color: #d35400; }
-        .card.risk-crítico { border-left-color: #c0392b; background-color: #fffdfd; }
+        .card.risk-baixo { background-color: #f2fcf6; border-left-color: #27ae60; }
+        .card.risk-moderado { background-color: #fef9e7; border-left-color: #f39c12; }
+        .card.risk-alto { background-color: #fdf5f2; border-left-color: #d35400; }
+        .card.risk-crítico { background-color: #fceae8; border-left-color: #c0392b; }
         
         .card h3 { 
             margin-top: 0; 
             margin-bottom: 12px; 
             color: #1b4d3e;
-            border-bottom: 2px solid #f0f4f1;
+            border-bottom: 2px solid rgba(0,0,0,0.06);
             padding-bottom: 8px;
             display: flex;
             justify-content: space-between;
@@ -87,10 +107,10 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .bg-baixo { background-color: #e8f8f0; color: #27ae60; }
-        .bg-moderado { background-color: #fef5e7; color: #d68910; }
-        .bg-alto { background-color: #fbeee6; color: #ba4a00; }
-        .bg-crítico { background-color: #fadbd8; color: #922b21; animation: pulse 1.5s infinite; }
+        .bg-baixo { background-color: #d4efdf; color: #1e8449; }
+        .bg-moderado { background-color: #f9e79f; color: #b7950b; }
+        .bg-alto { background-color: #f5cba7; color: #a04000; }
+        .bg-crítico { background-color: #f5b7b1; color: #78281f; animation: pulse 1.5s infinite; }
 
         @keyframes pulse {
             0% { opacity: 1; }
@@ -99,13 +119,13 @@
         }
 
         .section-title {
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: bold;
-            color: #7f8c8d;
+            color: #566573;
             margin: 12px 0 6px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px dashed #e0e0e0;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
             padding-bottom: 3px;
         }
         .metric { 
@@ -116,18 +136,18 @@
             align-items: center; 
         }
         .forecast-box {
-            background: #f8faf9;
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 8px;
             padding: 10px;
             margin-top: 8px;
-            border: 1px solid #e4ede6;
+            border: 1px solid rgba(0,0,0,0.05);
         }
         .forecast-item {
             font-size: 0.85em;
             padding: 4px 0;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #edf2ee;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
         .forecast-item:last-child {
             border-bottom: none;
@@ -140,6 +160,11 @@
         <h1>🌲 Serra Amiga: Clima & Alerta Geológico</h1>
         <p>Campos do Jordão - SP | Monitoramento Unificado e Previsão (<span id="current-date-header"></span>)</p>
     </header>
+
+    <!-- Barra de Filtro / Pesquisa de Bairro -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Digite o nome do bairro para filtrar..." onkeyup="filterNeighborhoods()">
+    </div>
 
     <div class="main-layout">
         <!-- Mapa Interativo -->
@@ -169,7 +194,7 @@
 
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // 30 Localidades REAIS de Campos do Jordão com termos amigáveis em português
+        // 30 Localidades REAIS de Campos do Jordão
         const locationsData = [
             { id: 1, name: "Vila Capivari", lat: -22.7441, lng: -45.5898, risk: "crítico", rain: "95mm", wind: "40 km/h", uv: "3 (Baixo)", geo: "Risco de Alagamento", fc1: "Chuva Forte (80mm)", fc2: "Nublado com Chuva (30mm)", fc3: "Parcialmente Nublado (5mm)" },
             { id: 2, name: "Vila Abernéssia", lat: -22.7383, lng: -45.5919, risk: "alto", rain: "60mm", wind: "30 km/h", uv: "4 (Moderado)", geo: "Atenção a alagamentos", fc1: "Chuva Moderada (45mm)", fc2: "Instável (20mm)", fc3: "Sol entre Nuvens (0mm)" },
@@ -234,27 +259,43 @@
 
             circleMarker.bindPopup(`<b>${loc.name}</b><br>Alerta: ${loc.risk.toUpperCase()}<br>Chuva Hoje: ${loc.rain}`);
 
-            // Card unificado com informações completas e previsão visível
+            // Card unificado com estilo claro de fundo e emojis ao lado de cada texto informativo
             const card = document.createElement('div');
             card.className = `card risk-${loc.risk}`;
+            card.setAttribute('data-name', loc.name.toLowerCase());
             card.innerHTML = `
-                <h3>${loc.id}. ${loc.name} <span class="badge bg-${loc.risk}">${loc.risk}</span></h3>
+                <h3>📍 ${loc.name} <span class="badge bg-${loc.risk}">${loc.risk}</span></h3>
                 
-                <div class="section-title">Condições de Hoje (${dateTodayStr})</div>
-                <div class="metric"><span>Chuva Acumulada:</span> <strong>${loc.rain}</strong></div>
-                <div class="metric"><span>Velocidade Vento:</span> <strong>${loc.wind}</strong></div>
-                <div class="metric"><span>Índice UV:</span> <strong>${loc.uv}</strong></div>
-                <div class="metric"><span>Alerta Geológico:</span> <strong>${loc.geo}</strong></div>
+                <div class="section-title">🌤️ Condições de Hoje (${dateTodayStr})</div>
+                <div class="metric"><span>🌧️ Chuva Acumulada:</span> <strong>${loc.rain}</strong></div>
+                <div class="metric"><span>💨 Velocidade Vento:</span> <strong>${loc.wind}</strong></div>
+                <div class="metric"><span>☀️ Índice UV:</span> <strong>${loc.uv}</strong></div>
+                <div class="metric"><span>⚠️ Alerta Geológico:</span> <strong>${loc.geo}</strong></div>
 
-                <div class="section-title">Previsão Próximos Dias</div>
+                <div class="section-title">📅 Previsão Próximos Dias</div>
                 <div class="forecast-box">
-                    <div class="forecast-item"><span>${dateDay1Str}:</span> <strong>${loc.fc1}</strong></div>
-                    <div class="forecast-item"><span>${dateDay2Str}:</span> <strong>${loc.fc2}</strong></div>
-                    <div class="forecast-item"><span>${dateDay3Str}:</span> <strong>${loc.fc3}</strong></div>
+                    <div class="forecast-item"><span>📌 ${dateDay1Str}:</span> <strong>${loc.fc1}</strong></div>
+                    <div class="forecast-item"><span>📌 ${dateDay2Str}:</span> <strong>${loc.fc2}</strong></div>
+                    <div class="forecast-item"><span>📌 ${dateDay3Str}:</span> <strong>${loc.fc3}</strong></div>
                 </div>
             `;
             gridContainer.appendChild(card);
         });
+
+        // Função de Filtro Dinâmico por Bairro
+        function filterNeighborhoods() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                if (name.includes(input)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
     </script>
 </body>
 </html>
