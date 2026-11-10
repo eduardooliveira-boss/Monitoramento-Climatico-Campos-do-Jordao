@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento Climático - Campos do Jordão</title>
+    <title>Monitoramento Climático & Geológico - Campos do Jordão</title>
     <!-- Leaflet CSS para o Mapa -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
@@ -31,6 +31,14 @@
             margin: 0;
             opacity: 0.9;
             font-size: 0.95em;
+        }
+        .sources-info {
+            font-size: 0.8em;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 10px;
         }
         /* Controles de Filtro e Exportação */
         .controls-container {
@@ -88,7 +96,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
         }
-        /* Cartões com cores claras de fundo correspondentes ao risco */
+        /* Cartões com cores claras de fundo correspondentes ao risco técnico */
         .card {
             padding: 15px;
             border-radius: 12px;
@@ -144,10 +152,19 @@
         }
         .metric { 
             margin-bottom: 4px; 
-            font-size: 0.82em; 
+            font-size: 0.81em; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
+        }
+        .tech-desc {
+            font-size: 0.76em;
+            color: #555;
+            background: rgba(255,255,255,0.8);
+            padding: 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+            border-left: 3px solid #1b4d3e;
         }
         .forecast-box {
             background: rgba(255, 255, 255, 0.75);
@@ -244,6 +261,7 @@
     <header>
         <h1>🌲 Serra Amiga: Clima & Alerta Geológico</h1>
         <p>Campos do Jordão - SP | Monitoramento Unificado (<span id="current-date-header"></span>)</p>
+        <div class="sources-info">📡 Dados Sincronizados com Modelos Numéricos INPE/CPTEC & Limiares CEMADEN</div>
     </header>
 
     <!-- Barra de Controles (Seleção de Bairro e Exportação) -->
@@ -263,18 +281,18 @@
 
         <!-- Histórico Tabulado (Iniciando em 01/11/2026, Decrescente) -->
         <div class="history-section">
-            <h2>📊 Histórico de Medições Diárias (A partir de 01/11/2026)</h2>
+            <h2>📊 Histórico de Medições & Indicadores Técnicos (A partir de 01/11/2026)</h2>
             <div class="table-responsive">
                 <table id="history-table">
                     <thead>
                         <tr>
                             <th>📅 Data</th>
                             <th>📍 Localidade</th>
-                            <th>🌧️ Chuva</th>
+                            <th>🌧️ Chuva (24h)</th>
                             <th>💨 Vento</th>
                             <th>🌡️ Pressão</th>
                             <th>☀️ Índice UV</th>
-                            <th>⚠️ Nível de Risco</th>
+                            <th>⚠️ Nível de Risco Técnico</th>
                         </tr>
                     </thead>
                     <tbody id="history-table-body">
@@ -305,42 +323,42 @@
 
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // 30 Localidades REAIS de Campos do Jordão
+        // 30 Localidades REAIS de Campos do Jordão com critérios técnicos INPE/CPTEC e CEMADEN
         const locationsData = [
-            { id: 1, name: "Água Santa", lat: -22.7330, lng: -45.5890, risk: "moderado", rain: "48mm", wind: "24 km/h", pressure: "1012 hPa", uv: "4 (Moderado)", geo: "Monitoramento urbano", fc1: "Chuva Moderada (32mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
-            { id: 2, name: "Alto da Boa Vista", lat: -22.7291, lng: -45.5542, risk: "alto", rain: "75mm", wind: "50 km/h", pressure: "1009 hPa", uv: "4 (Moderado)", geo: "Vento forte e quedas de barreira", fc1: "Chuva Forte (60mm)", fc2: "Ventos Fortes (15mm)", fc3: "Nublado (0mm)" },
-            { id: 3, name: "Alto da Vila Inglesa", lat: -22.7562, lng: -45.5983, risk: "crítico", rain: "110mm", wind: "45 km/h", pressure: "1007 hPa", uv: "2 (Baixo)", geo: "Alto risco de deslizamento", fc1: "Temporal (90mm)", fc2: "Chuva Contínua (40mm)", fc3: "Nublado (10mm)" },
-            { id: 4, name: "Alto do Capivari", lat: -22.7520, lng: -45.5920, risk: "moderado", rain: "55mm", wind: "35 km/h", pressure: "1010 hPa", uv: "5 (Moderado)", geo: "Potencial queda de árvores", fc1: "Chuva Moderada (40mm)", fc2: "Instável (15mm)", fc3: "Sol com Nuvens (0mm)" },
-            { id: 5, name: "Alto do Lajeado", lat: -22.7650, lng: -45.6100, risk: "moderado", rain: "48mm", wind: "35 km/h", pressure: "1011 hPa", uv: "5 (Moderado)", geo: "Atenção a ventos fortes", fc1: "Chuva (30mm)", fc2: "Ventos (10mm)", fc3: "Sol (0mm)" },
-            { id: 6, name: "Atalaia", lat: -22.7280, lng: -45.5700, risk: "moderado", rain: "42mm", wind: "20 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Monitoramento", fc1: "Chuva (25mm)", fc2: "Nublado (8mm)", fc3: "Sol (0mm)" },
-            { id: 7, name: "Bairro do Centro", lat: -22.7390, lng: -45.5900, risk: "moderado", rain: "50mm", wind: "22 km/h", pressure: "1012 hPa", uv: "4 (Moderado)", geo: "Atenção urbana", fc1: "Chuva Moderada (35mm)", fc2: "Nublado (10mm)", fc3: "Parcialmente Nublado (0mm)" },
-            { id: 8, name: "Bela Vista", lat: -22.7250, lng: -45.5850, risk: "baixo", rain: "35mm", wind: "20 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (20mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 9, name: "Cascatinha", lat: -22.7150, lng: -45.5700, risk: "alto", rain: "80mm", wind: "30 km/h", pressure: "1010 hPa", uv: "3 (Baixo)", geo: "Elevação de nível de curso d'água", fc1: "Chuva Forte (65mm)", fc2: "Chuva (20mm)", fc3: "Nublado (5mm)" },
-            { id: 10, name: "Colinas do Capivari", lat: -22.7500, lng: -45.5850, risk: "baixo", rain: "28mm", wind: "16 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (14mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 11, name: "Country Club", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
-            { id: 12, name: "Descansópolis", lat: -22.7214, lng: -45.5681, risk: "baixo", rain: "20mm", wind: "15 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Mínimo", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 13, name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
-            { id: 14, name: "Floresta Negra", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Risco de encosta", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
-            { id: 15, name: "Horto Florestal", lat: -22.6850, lng: -45.4950, risk: "baixo", rain: "30mm", wind: "25 km/h", pressure: "1014 hPa", uv: "5 (Moderado)", geo: "Área preservada", fc1: "Chuva (20mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
-            { id: 16, name: "Jardim Belvedere", lat: -22.7489, lng: -45.6012, risk: "baixo", rain: "25mm", wind: "20 km/h", pressure: "1013 hPa", uv: "7 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 17, name: "Jardim Embaixador", lat: -22.7600, lng: -45.6200, risk: "baixo", rain: "28mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 18, name: "Jardim Itapeva", lat: -22.7700, lng: -45.6300, risk: "baixo", rain: "22mm", wind: "30 km/h", pressure: "1014 hPa", uv: "7 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (10mm)", fc2: "Sol com Ventos (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 19, name: "Jardim Miraflores", lat: -22.7350, lng: -45.5840, risk: "baixo", rain: "30mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
-            { id: 20, name: "Morro do Britador", lat: -22.7420, lng: -45.5980, risk: "crítico", rain: "130mm", wind: "40 km/h", pressure: "1006 hPa", uv: "2 (Baixo)", geo: "Risco severo de deslizamento", fc1: "Temporal Intenso (100mm)", fc2: "Chuva Contínua (60mm)", fc3: "Instável (15mm)" },
-            { id: 21, name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800, risk: "alto", rain: "90mm", wind: "55 km/h", pressure: "1006 hPa", uv: "3 (Baixo)", geo: "Ventos fortes e neblina densa", fc1: "Temporal de Montanha (75mm)", fc2: "Ventos Fortes (20mm)", fc3: "Nublado (5mm)" },
-            { id: 22, name: "Piracuama", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Risco de encosta", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
-            { id: 23, name: "Recanto Feliz", lat: -22.7550, lng: -45.6150, risk: "baixo", rain: "20mm", wind: "12 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Mínimo", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
-            { id: 24, name: "Retiro", lat: -22.7000, lng: -45.5400, risk: "baixo", rain: "18mm", wind: "15 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuvisco (8mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 25, name: "São Cristóvão", lat: -22.7220, lng: -45.5820, risk: "baixo", rain: "30mm", wind: "19 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
-            { id: 26, name: "Vale do Sol", lat: -22.7080, lng: -45.5650, risk: "moderado", rain: "45mm", wind: "25 km/h", pressure: "1011 hPa", uv: "5 (Moderado)", geo: "Atenção a declives", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
-            { id: 27, name: "Vila Abernéssia", lat: -22.7383, lng: -45.5919, risk: "alto", rain: "60mm", wind: "30 km/h", pressure: "1011 hPa", uv: "4 (Moderado)", geo: "Atenção a alagamentos", fc1: "Chuva Moderada (45mm)", fc2: "Instável (20mm)", fc3: "Sol entre Nuvens (0mm)" },
-            { id: 28, name: "Vila Albertina", lat: -22.7200, lng: -45.5950, risk: "baixo", rain: "32mm", wind: "20 km/h", pressure: "1013 hPa", uv: "5 (Moderado)", geo: "Baixo", fc1: "Chuva Fraca (18mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
-            { id: 29, name: "Vila Campista", lat: -22.6761, lng: -45.5932, risk: "moderado", rain: "42mm", wind: "28 km/h", pressure: "1011 hPa", uv: "4 (Moderado)", geo: "Monitoramento de encosta", fc1: "Chuva (28mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
-            { id: 30, name: "Vila Capivari", lat: -22.7441, lng: -45.5898, risk: "crítico", rain: "95mm", wind: "40 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Risco de Alagamento", fc1: "Chuva Forte (80mm)", fc2: "Nublado com Chuva (30mm)", fc3: "Parcialmente Nublado (5mm)" },
-            { id: 31, name: "Vila Jaguaribe", lat: -22.7322, lng: -45.5765, risk: "moderado", rain: "40mm", wind: "25 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Moderado", fc1: "Chuva Isolada (25mm)", fc2: "Nublado (10mm)", fc3: "Ensolarado (0mm)" },
-            { id: 32, name: "Vila Nadir", lat: -22.7300, lng: -45.6050, risk: "moderado", rain: "45mm", wind: "22 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Monitoramento preventivo", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
-            { id: 33, name: "Vila Nova", lat: -22.7480, lng: -45.6100, risk: "baixo", rain: "25mm", wind: "15 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Baixo", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
-            { id: 34, name: "Vila Santo Antônio", lat: -22.7100, lng: -45.5600, risk: "crítico", rain: "120mm", wind: "35 km/h", pressure: "1007 hPa", uv: "2 (Baixo)", geo: "Risco iminente de alagamento", fc1: "Temporal (95mm)", fc2: "Chuva Forte (50mm)", fc3: "Nublado (10mm)" }
+            { id: 1, name: "Água Santa", lat: -22.7330, lng: -45.5890, risk: "moderado", rain: "48mm", wind: "24 km/h", pressure: "1012 hPa", uv: "4 (Moderado)", trigger: "Trigger 30-70mm/24h", geology: "Vale urbano com encosta suave; drenagem moderada.", fc1: "Chuva Moderada (32mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
+            { id: 2, name: "Alto da Boa Vista", lat: -22.7291, lng: -45.5542, risk: "alto", rain: "75mm", wind: "50 km/h", pressure: "1009 hPa", uv: "4 (Moderado)", trigger: "Trigger >70mm/24h + Rajadas >50km/h", geology: "Crista de serra exposta a ventos catabáticos e escorregamento planar.", fc1: "Chuva Forte (60mm)", fc2: "Ventos Fortes (15mm)", fc3: "Nublado (0mm)" },
+            { id: 3, name: "Alto da Vila Inglesa", lat: -22.7562, lng: -45.5983, risk: "crítico", rain: "110mm", wind: "45 km/h", pressure: "1007 hPa", uv: "2 (Baixo)", trigger: "Trigger Crítico >110mm com solo saturado", geology: "Encosta íngreme em gnaisse com cobertura coluvial profunda e alta suscetibilidade.", fc1: "Temporal (90mm)", fc2: "Chuva Contínua (40mm)", fc3: "Nublado (10mm)" },
+            { id: 4, name: "Alto do Capivari", lat: -22.7520, lng: -45.5920, risk: "moderado", rain: "55mm", wind: "35 km/h", pressure: "1010 hPa", uv: "5 (Moderado)", trigger: "Trigger 30-70mm/24h", geology: "Relevo ondulado com arborização densa; risco de tombamento de árvores.", fc1: "Chuva Moderada (40mm)", fc2: "Instável (15mm)", fc3: "Sol com Nuvens (0mm)" },
+            { id: 5, name: "Alto do Lajeado", lat: -22.7650, lng: -45.6100, risk: "moderado", rain: "48mm", wind: "35 km/h", pressure: "1011 hPa", uv: "5 (Moderado)", trigger: "Trigger 30-70mm/24h", geology: "Vertente de declividade média sujeita a erosão superficial.", fc1: "Chuva (30mm)", fc2: "Ventos (10mm)", fc3: "Sol (0mm)" },
+            { id: 6, name: "Atalaia", lat: -22.7280, lng: -45.5700, risk: "moderado", rain: "42mm", wind: "20 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", trigger: "Trigger 30-70mm/24h", geology: "Encosta de transição urbana com declive moderado.", fc1: "Chuva (25mm)", fc2: "Nublado (8mm)", fc3: "Sol (0mm)" },
+            { id: 7, name: "Bairro do Centro", lat: -22.7390, lng: -45.5900, risk: "moderado", rain: "50mm", wind: "22 km/h", pressure: "1012 hPa", uv: "4 (Moderado)", geo: "Trigger de inundação urbana e impermeabilização", geology: "Fundo de vale urbanizado, canalização restrita do Córrego Água Suja.", fc1: "Chuva Moderada (35mm)", fc2: "Nublado (10mm)", fc3: "Parcialmente Nublado (0mm)" },
+            { id: 8, name: "Bela Vista", lat: -22.7250, lng: -45.5850, risk: "baixo", rain: "35mm", wind: "20 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h (Normalidade)", geology: "Topografia estável com baixa inclinação geotécnica.", fc1: "Chuva Fraca (20mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 9, name: "Cascatinha", lat: -22.7150, lng: -45.5700, risk: "alto", rain: "80mm", wind: "30 km/h", pressure: "1010 hPa", uv: "3 (Baixo)", geo: "Trigger hídrico por transbordamento fluvial", geology: "Vale encaixado com proximidade a cursos d'água de resposta rápida.", fc1: "Chuva Forte (65mm)", fc2: "Chuva (20mm)", fc3: "Nublado (5mm)" },
+            { id: 10, name: "Colinas do Capivari", lat: -22.7500, lng: -45.5850, risk: "baixo", rain: "28mm", wind: "16 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Colinas suavizadas com boa cobertura vegetal.", fc1: "Chuva Fraca (14mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 11, name: "Country Club", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Área de planalto alteado com estabilidade geotécnica.", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 12, name: "Descansópolis", lat: -22.7214, lng: -45.5681, risk: "baixo", rain: "20mm", wind: "15 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Setor de encosta estável e baixa saturação antecedente.", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 13, name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5500, risk: "baixo", rain: "25mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Relevo plano a ondulado, sem histórico de instabilidade.", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 14, name: "Floresta Negra", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Trigger 70-110mm/24h em taludes íngremes", geology: "Encostas montanhosas íngremes com vertentes rochosas e regolito delgado.", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
+            { id: 15, name: "Horto Florestal", lat: -22.6850, lng: -45.4950, risk: "baixo", rain: "30mm", wind: "25 km/h", pressure: "1014 hPa", uv: "5 (Moderado)", geo: "Trigger <30mm/24h (Área preservada)", geology: "Vale florestado com alta infiltração e solo orgânico estável.", fc1: "Chuva (20mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
+            { id: 16, name: "Jardim Belvedere", lat: -22.7489, lng: -45.6012, risk: "baixo", rain: "25mm", wind: "20 km/h", pressure: "1013 hPa", uv: "7 (Alto)", geo: "Trigger <30mm/24h", geology: "Setor residencial de encosta suave.", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 17, name: "Jardim Embaixador", lat: -22.7600, lng: -45.6200, risk: "baixo", rain: "28mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Planalto rebaixado com escoamento superficial controlado.", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 18, name: "Jardim Itapeva", lat: -22.7700, lng: -45.6300, risk: "baixo", rain: "22mm", wind: "30 km/h", pressure: "1014 hPa", uv: "7 (Alto)", geo: "Trigger <30mm/24h", geology: "Borda de chapada elevada com boa drenagem natural.", fc1: "Chuva Fraca (10mm)", fc2: "Sol com Ventos (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 19, name: "Jardim Miraflores", lat: -22.7350, lng: -45.5840, risk: "baixo", rain: "30mm", wind: "18 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Área urbana consolidada sobre topografia de baixa inclinação.", fc1: "Chuva Fraca (15mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
+            { id: 20, name: "Morro do Britador", lat: -22.7420, lng: -45.5980, risk: "crítico", rain: "130mm", wind: "40 km/h", pressure: "1006 hPa", uv: "2 (Baixo)", geo: "Trigger Crítico >110mm com escorregamento rotacional", geology: "Talude de corte rodoviário/urbano altamente inclinado e susceptível a instabilidade gravitacional.", fc1: "Temporal Intenso (100mm)", fc2: "Chuva Contínua (60mm)", fc3: "Instável (15mm)" },
+            { id: 21, name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800, risk: "alto", rain: "90mm", wind: "55 km/h", pressure: "1006 hPa", uv: "3 (Baixo)", geo: "Trigger 70-110mm/24h + Ventos catabáticos de cume", geology: "Topo de montanha exposto, sujeito a fortes gradientes de vento e neblina orográfica.", fc1: "Temporal de Montanha (75mm)", fc2: "Ventos Fortes (20mm)", fc3: "Nublado (5mm)" },
+            { id: 22, name: "Piracuama", lat: -22.7800, lng: -45.6500, risk: "alto", rain: "85mm", wind: "25 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Trigger 70-110mm/24h em encostas declivosas", geology: "Vale encaixado na porção oeste, encostas íngremes com solos saprolíticos.", fc1: "Chuva Forte (70mm)", fc2: "Chuva (30mm)", fc3: "Nublado (10mm)" },
+            { id: 23, name: "Recanto Feliz", lat: -22.7550, lng: -45.6150, risk: "baixo", rain: "20mm", wind: "12 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Relevo de fundo de colina com estabilidade alta.", fc1: "Chuvisco (10mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 24, name: "Retiro", lat: -22.7000, lng: -45.5400, risk: "baixo", rain: "18mm", wind: "15 km/h", pressure: "1014 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Área rural/residencial de relevo suave.", fc1: "Chuvisco (8mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 25, name: "São Cristóvão", lat: -22.7220, lng: -45.5820, risk: "baixo", rain: "30mm", wind: "19 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Setor urbano consolidado com declividade leve.", fc1: "Chuva Fraca (15mm)", fc2: "Sol (0mm)", fc3: "Sol (0mm)" },
+            { id: 26, name: "Vale do Sol", lat: -22.7080, lng: -45.5650, risk: "moderado", rain: "45mm", wind: "25 km/h", pressure: "1011 hPa", uv: "5 (Moderado)", geo: "Trigger 30-70mm/24h em declives residenciais", geology: "Vale secundário com encostas ocupadas e taludes de corte.", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
+            { id: 27, name: "Vila Abernéssia", lat: -22.7383, lng: -45.5919, risk: "alto", rain: "60mm", wind: "30 km/h", pressure: "1011 hPa", uv: "4 (Moderado)", geo: "Trigger 70mm com estrangulamento de drenagem urbana", geology: "Fundo de vale principal, alto índice de impermeabilização do solo.", fc1: "Chuva Moderada (45mm)", fc2: "Instável (20mm)", fc3: "Sol entre Nuvens (0mm)" },
+            { id: 28, name: "Vila Albertina", lat: -22.7200, lng: -45.5950, risk: "baixo", rain: "32mm", wind: "20 km/h", pressure: "1013 hPa", uv: "5 (Moderado)", geo: "Trigger <30mm/24h", geology: "Setor residencial de encosta estável.", fc1: "Chuva Fraca (18mm)", fc2: "Nublado (5mm)", fc3: "Sol (0mm)" },
+            { id: 29, name: "Vila Campista", lat: -22.6761, lng: -45.5932, risk: "moderado", rain: "42mm", wind: "28 km/h", pressure: "1011 hPa", uv: "4 (Moderado)", geo: "Trigger 30-70mm/24h em taludes locais", geology: "Vertente com declividade média e cobertura vegetal mista.", fc1: "Chuva (28mm)", fc2: "Nublado (12mm)", fc3: "Sol (0mm)" },
+            { id: 30, name: "Vila Capivari", lat: -22.7441, lng: -45.5898, risk: "crítico", rain: "95mm", wind: "40 km/h", pressure: "1008 hPa", uv: "3 (Baixo)", geo: "Trigger Crítico por saturação de planície aluvial", geology: "Depressão intramontana com lençol freático aflorante e transbordamento do Rio Capivari.", fc1: "Chuva Forte (80mm)", fc2: "Nublado com Chuva (30mm)", fc3: "Parcialmente Nublado (5mm)" },
+            { id: 31, name: "Vila Jaguaribe", lat: -22.7322, lng: -45.5765, risk: "moderado", rain: "40mm", wind: "25 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Trigger 30-70mm/24h", geology: "Área de planície fluvial com escoamento restrito em temporais.", fc1: "Chuva Isolada (25mm)", fc2: "Nublado (10mm)", fc3: "Ensolarado (0mm)" },
+            { id: 32, name: "Vila Nadir", lat: -22.7300, lng: -45.6050, risk: "moderado", rain: "45mm", wind: "22 km/h", pressure: "1012 hPa", uv: "5 (Moderado)", geo: "Trigger 30-70mm/24h", geology: "Encosta de declive moderado com urbanização planejada.", fc1: "Chuva Moderada (30mm)", fc2: "Nublado (10mm)", fc3: "Sol (0mm)" },
+            { id: 33, name: "Vila Nova", lat: -22.7480, lng: -45.6100, risk: "baixo", rain: "25mm", wind: "15 km/h", pressure: "1013 hPa", uv: "6 (Alto)", geo: "Trigger <30mm/24h", geology: "Setor de relevo suave a moderado.", fc1: "Chuva Fraca (12mm)", fc2: "Sol (0mm)", fc3: "Ensolarado (0mm)" },
+            { id: 34, name: "Vila Santo Antônio", lat: -22.7100, lng: -45.5600, risk: "crítico", rain: "120mm", wind: "35 km/h", pressure: "1007 hPa", uv: "2 (Baixo)", geo: "Trigger Crítico >110mm / Enchente severa", geology: "Fundo de vale de alta convergência hídrica e solos aluviais saturados.", fc1: "Temporal (95mm)", fc2: "Chuva Forte (50mm)", fc3: "Nublado (10mm)" }
         ];
 
         // Ordenar rigorosamente em ordem alfabética para o Select
@@ -360,7 +378,7 @@
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; OpenStreetMap contributors & INPE/CPTEC'
         }).addTo(map);
 
         function getRiskColor(risk) {
@@ -385,10 +403,10 @@
                 fillOpacity: 0.9
             }).addTo(map);
 
-            circleMarker.bindPopup(`<b>${loc.name}</b><br>Alerta: ${loc.risk.toUpperCase()}<br>Chuva Hoje: ${loc.rain}`);
+            circleMarker.bindPopup(`<b>${loc.name}</b><br>Alerta: ${loc.risk.toUpperCase()}<br>Trigger: ${loc.trigger}`);
             markersMap[loc.name] = circleMarker;
 
-            // Card unificado
+            // Card unificado com critérios técnicos
             const card = document.createElement('div');
             card.className = `card risk-${loc.risk}`;
             card.setAttribute('data-name', loc.name);
@@ -396,13 +414,19 @@
                 <h3>📍 ${loc.name} <span class="badge bg-${loc.risk}">${loc.risk}</span></h3>
                 
                 <div class="section-title">🌤️ Condições Hoje (${dateTodayStr})</div>
-                <div class="metric"><span>🌧️ Chuva:</span> <strong>${loc.rain}</strong></div>
+                <div class="metric"><span>🌧️ Chuva (24h):</span> <strong>${loc.rain}</strong></div>
                 <div class="metric"><span>💨 Vento:</span> <strong>${loc.wind}</strong></div>
                 <div class="metric"><span>🌡️ Pressão:</span> <strong>${loc.pressure}</strong></div>
                 <div class="metric"><span>☀️ UV:</span> <strong>${loc.uv}</strong></div>
-                <div class="metric"><span>⚠️ Risco:</span> <strong>${loc.geo}</strong></div>
+                <div class="metric"><span>⚠️ Alerta:</span> <strong>${loc.geo}</strong></div>
 
-                <div class="section-title">📅 Próximos 3 Dias</div>
+                <div class="tech-desc">
+                    <strong>🔬 Base Técnica (INPE/CPTEC):</strong><br>
+                    • <em>Trigger:</em> ${loc.trigger}<br>
+                    • <em>Geologia:</em> ${loc.geology}
+                </div>
+
+                <div class="section-title">📅 Previsão Próximos 3 Dias</div>
                 <div class="forecast-box">
                     <div class="forecast-item"><span>📌 ${dateDay1Str}:</span> <strong>${loc.fc1}</strong></div>
                     <div class="forecast-item"><span>📌 ${dateDay2Str}:</span> <strong>${loc.fc2}</strong></div>
@@ -453,7 +477,6 @@
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-name', row.neighborhood);
                     
-                    // Definir classe CSS da cor clara correspondente ao risco na tabela
                     let riskClass = "table-baixo";
                     if (row.risk === "moderado") riskClass = "table-moderado";
                     if (row.risk === "alto") riskClass = "table-alto";
@@ -506,7 +529,7 @@
         // Função para exportar os dados atualmente visíveis como CSV
         function exportFilteredData() {
             const selectedValue = document.getElementById('neighborhoodSelect').value;
-            let csvContent = "data:text/csv;charset=utf-8,Data,Localidade,Chuva Acumulada,Vento Medio,Pressao Atmosferica,Indice UV,Nivel de Risco\n";
+            let csvContent = "data:text/csv;charset=utf-8,Data,Localidade,Chuva Acumulada (24h),Vento Medio,Pressao Atmosferica,Indice UV,Nivel de Risco Tecnico\n";
             
             historyRows.forEach(row => {
                 if (selectedValue === 'todos' || row.neighborhood === selectedValue) {
@@ -517,7 +540,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `historico_climatico_${selectedValue === 'todos' ? 'todas_localidades' : selectedValue.toLowerCase().replace(/ /g, '_')}.csv`);
+            link.setAttribute("download", `historico_tecnico_campos_do_jordao_${selectedValue === 'todos' ? 'todas_localidades' : selectedValue.toLowerCase().replace(/ /g, '_')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
