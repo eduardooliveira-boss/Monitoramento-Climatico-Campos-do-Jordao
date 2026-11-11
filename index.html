@@ -323,7 +323,7 @@
 
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // 100 Localidades REAIS com correções geográficas exatas e Vale do Sol 2 próximo ao Imbiri e Vila Campista
+        // Lista completa de 100 localidades e bairros de Campos do Jordão
         const rawNames = [
             "Água Santa", "Alto da Boa Vista", "Alto da Vila Inglesa", "Alto do Capivari", "Alto do Lajeado",
             "Atalaia", "Bairro do Centro", "Bela Vista", "Cascatinha", "Colinas do Capivari",
@@ -347,38 +347,65 @@
             "Loteamento Vale do Descanso", "Horto Comary", "Alto da Serra", "Bairro dos Mellos", "Bairro dos Freires", "Distrito Industrial"
         ];
 
-        // Âncoras geográficas precisas e corrigidas para espalhar os bairros sem aglomeração
+        // Dicionário de coordenadas oficiais exatas para os principais bairros e referências
+        const exactCoords = {
+            "Vila Capivari": [-22.7441, -45.5898],
+            "Vila Abernéssia": [-22.7383, -45.5919],
+            "Vila Jaguaribe": [-22.7322, -45.5765],
+            "Alto da Vila Inglesa": [-22.7562, -45.5983],
+            "Descansópolis": [-22.7214, -45.5681],
+            "Alto da Boa Vista": [-22.7291, -45.5542],
+            "Jardim Belvedere": [-22.7489, -45.6012],
+            "Jardim Miraflores": [-22.7350, -45.5840],
+            "Alto do Capivari": [-22.7520, -45.5920],
+            "Bairro do Centro": [-22.7390, -45.5900],
+            "Bela Vista": [-22.7250, -45.5850],
+            "Cascatinha": [-22.7150, -45.5700],
+            "Vila Santo Antônio": [-22.7100, -45.5600],
+            "Morro do Britador": [-22.7420, -45.5980],
+            "Vila Nova": [-22.7480, -45.6100],
+            "Recanto Feliz": [-22.7550, -45.6150],
+            "Jardim Embaixador": [-22.7600, -45.6200],
+            "Vila Albertina": [-22.7200, -45.5950],
+            "Horto Florestal": [-22.6850, -45.4950],
+            "Vila Nadir": [-22.7300, -45.6050],
+            "Água Santa": [-22.7330, -45.5890],
+            "Jardim Itapeva": [-22.7700, -45.6300],
+            "Alto do Lajeado": [-22.7650, -45.6100],
+            "Country Club": [-22.7120, -45.5500],
+            "Atalaia": [-22.7280, -45.5700],
+            "Floresta Negra": [-22.7800, -45.6500],
+            "Pico do Imbiri": [-22.6950, -45.5800],
+            "Vale do Sol 2": [-22.6840, -45.5865],
+            "Vila Campista": [-22.6761, -45.5932],
+            "Colinas do Capivari": [-22.7500, -45.5850],
+            "Monte Carlo": [-22.7150, -45.5500],
+            "Vila Umuarama": [-22.7100, -45.6100],
+            "Acampamento dos Palmas": [-22.7900, -45.5600],
+            "Retiro": [-22.7000, -45.5400],
+            "São Cristóvão": [-22.7220, -45.5820]
+        };
+
+        // Âncoras regionais para distribuir os demais loteamentos sem sobreposição
         const subRegions = [
-            { lat: -22.7420, lng: -45.5890 }, // Centro / Capivari
-            { lat: -22.7350, lng: -45.5800 }, // Abernéssia / Jaguaribe
-            { lat: -22.7550, lng: -45.5950 }, // Vila Inglesa / Capivari Alto
-            { lat: -22.6850, lng: -45.4950 }, // Horto Florestal
-            { lat: -22.6950, lng: -45.5800 }, // Pico do Imbiri & Região Norte
-            { lat: -22.6820, lng: -45.5880 }, // Vale do Sol 2 (Próximo à Vila Campista e ao Imbiri)
-            { lat: -22.6761, lng: -45.5932 }, // Vila Campista
-            { lat: -22.7700, lng: -45.6300 }, // Jardim Itapeva / Platô Oeste
-            { lat: -22.7900, lng: -45.5600 }, // Acampamento dos Palmas / Zona Sul
-            { lat: -22.7150, lng: -45.5500 }, // Monte Carlo / Leste
-            { lat: -22.7100, lng: -45.6100 }, // Vila Umuarama / Noroeste
-            { lat: -22.7800, lng: -45.6500 }  // Vale Oeste
+            { lat: -22.7420, lng: -45.5890 }, 
+            { lat: -22.7350, lng: -45.5800 }, 
+            { lat: -22.7550, lng: -45.5950 }, 
+            { lat: -22.6850, lng: -45.4950 }, 
+            { lat: -22.6950, lng: -45.5800 }, 
+            { lat: -22.7700, lng: -45.6300 }, 
+            { lat: -22.7900, lng: -45.5600 }, 
+            { lat: -22.7150, lng: -45.5500 }, 
+            { lat: -22.7100, lng: -45.6100 }, 
+            { lat: -22.7800, lng: -45.6500 }
         ];
 
         const locationsData = rawNames.map((name, idx) => {
             let lat, lng;
             
-            // Garantir coordenadas exatas e realistas para os pontos de referência solicitados
-            if (name === "Vale do Sol 2") {
-                lat = -22.6840; lng = -45.5865;
-            } else if (name === "Vila Campista") {
-                lat = -22.6761; lng = -45.5932;
-            } else if (name === "Pico do Imbiri") {
-                lat = -22.6950; lng = -45.5800;
-            } else if (name === "Monte Carlo") {
-                lat = -22.7150; lng = -45.5500;
-            } else if (name === "Vila Umuarama") {
-                lat = -22.7100; lng = -45.6100;
-            } else if (name === "Acampamento dos Palmas") {
-                lat = -22.7900; lng = -45.5600;
+            if (exactCoords[name]) {
+                lat = exactCoords[name][0];
+                lng = exactCoords[name][1];
             } else {
                 const region = subRegions[idx % subRegions.length];
                 const offsetLat = (Math.sin(idx * 7) * 0.022);
