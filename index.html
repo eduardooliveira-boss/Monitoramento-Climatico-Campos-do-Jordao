@@ -85,7 +85,7 @@
             margin: 0 auto;
         }
         #map {
-            height: 400px;
+            height: 450px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 3px solid #fff;
@@ -323,39 +323,52 @@
 
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // 100 Localidades REAIS e Loteamentos de Campos do Jordão gerados algoritmicamente ao redor do centro geográfico
-        const baseCoords = { lat: -22.7390, lng: -45.5900 };
+        // 100 Localidades REAIS e Loteamentos de Campos do Jordão com dispersão geográfica ampla
         const rawNames = [
             "Água Santa", "Alto da Boa Vista", "Alto da Vila Inglesa", "Alto do Capivari", "Alto do Lajeado",
             "Atalaia", "Bairro do Centro", "Bela Vista", "Cascatinha", "Colinas do Capivari",
             "Country Club", "Descansópolis", "Fazenda Boa Vista", "Floresta Negra", "Horto Florestal",
             "Jardim Belvedere", "Jardim Embaixador", "Jardim Itapeva", "Jardim Miraflores", "Monte Carlo",
-            "Morro do Britador", "Pico do Imbiri", "Recanto Feliz", "Retiro", "São Cristóvão",
-            "Vale do Sol", "Vila Abernéssia", "Vila Albertina", "Vila Campista", "Vila Capivari",
-            "Vila Jaguaribe", "Vila Nadir", "Vila Nova", "Vila Santo Antônio", "Vila Umuarama",
-            "Vila Dom Pedro I", "Vila Santa Cruz", "Vila Cristina", "Vila Everest", "Vila Orestes",
-            "Vila Telma", "Vila Paulista", "Vila Jaguara", "Vila Suíça", "Vila Fracalanza",
-            "Vila Industrial", "Vila Sodipe", "Vila Matilde", "Vila Britânia", "Vila Pau D'Alho",
-            "Jardim Alpino", "Jardim Andorinhas", "Jardim Amantikir", "Jardim Floresta", "Jardim Germania",
-            "Jardim Ouro Preto", "Jardim Petrópolis", "Jardim Primavera", "Jardim Santa Rita", "Jardim Solitude",
-            "Parque Albano", "Parque Capivari", "Parque das Nuvens", "Parque Del Sol", "Parque Distrito",
-            "Parque Maristela", "Parque Monte Alegre", "Parque Renato", "Parque São Diogo", "Parque Vale do Ipê",
-            "Residencial Amantikir", "Residencial Boa Vista", "Residencial Campos do Jordão", "Residencial Das Flores", "Residencial Ermitage",
-            "Residencial Gênova", "Residencial Mantiqueira", "Residencial Monte Carlo II", "Residencial Ouro Verde", "Residencial Pico do Itapeva",
-            "Residencial San Marino", "Residencial Santa Lúcia", "Residencial Vale Verde", "Residencial Viena", "Residencial Vista Alegre",
-            "Loteamento Alto da Boa Vista", "Loteamento Botujuru", "Loteamento Cantagalo", "Loteamento Chácaras Itapeva", "Loteamento Fazenda Boa Vista",
-            "Loteamento Mantiqueira Sul", "Loteamento Nova Campos", "Loteamento Recanto dos Pássaros", "Loteamento Serra Verde", "Loteamento Vale do Descanso",
-            "Horto Comary", "Alto da Serra", "Bairro dos Mellos", "Bairro dos Freires", "Distrito Industrial"
+            "Morro do Britador", "Pico do Imbiri", "Acampamento dos Palmas", "Recanto Feliz", "Retiro", 
+            "São Cristóvão", "Vale do Sol", "Vila Abernéssia", "Vila Albertina", "Vila Campista", 
+            "Vila Capivari", "Vila Jaguaribe", "Vila Nadir", "Vila Nova", "Vila Santo Antônio", 
+            "Vila Umuarama", "Vila Dom Pedro I", "Vila Santa Cruz", "Vila Cristina", "Vila Everest", 
+            "Vila Orestes", "Vila Telma", "Vila Paulista", "Vila Jaguara", "Vila Suíça", 
+            "Vila Fracalanza", "Vila Industrial", "Vila Sodipe", "Vila Matilde", "Vila Britânia", 
+            "Vila Pau D'Alho", "Jardim Alpino", "Jardim Andorinhas", "Jardim Amantikir", "Jardim Floresta", 
+            "Jardim Germania", "Jardim Ouro Preto", "Jardim Petrópolis", "Jardim Primavera", "Jardim Santa Rita", 
+            "Jardim Solitude", "Parque Albano", "Parque Capivari", "Parque das Nuvens", "Parque Del Sol", 
+            "Parque Distrito", "Parque Maristela", "Parque Monte Alegre", "Parque Renato", "Parque São Diogo", 
+            "Parque Vale do Ipê", "Residencial Amantikir", "Residencial Boa Vista", "Residencial Campos do Jordão", "Residencial Das Flores", 
+            "Residencial Ermitage", "Residencial Gênova", "Residencial Mantiqueira", "Residencial Monte Carlo II", "Residencial Ouro Verde", 
+            "Residencial Pico do Itapeva", "Residencial San Marino", "Residencial Santa Lúcia", "Residencial Vale Verde", "Residencial Viena", 
+            "Residencial Vista Alegre", "Loteamento Alto da Boa Vista", "Loteamento Botujuru", "Loteamento Cantagalo", "Loteamento Chácaras Itapeva", 
+            "Loteamento Fazenda Boa Vista", "Loteamento Mantiqueira Sul", "Loteamento Nova Campos", "Loteamento Recanto dos Pássaros", "Loteamento Serra Verde", 
+            "Loteamento Vale do Descanso", "Horto Comary", "Alto da Serra", "Bairro dos Mellos", "Bairro dos Freires", "Distrito Industrial"
+        ];
+
+        // Âncoras geográficas espalhadas por Campos do Jordão para evitar aglomeração de pontos
+        const subRegions = [
+            { lat: -22.7420, lng: -45.5890 }, // Centro-Capivari
+            { lat: -22.7350, lng: -45.5800 }, // Abernéssia-Jaguaribe
+            { lat: -22.7550, lng: -45.5950 }, // Vila Inglesa-Capivari Alto
+            { lat: -22.6850, lng: -45.4950 }, // Horto Florestal
+            { lat: -22.6950, lng: -45.5800 }, // Pico do Imbiri
+            { lat: -22.7700, lng: -45.6300 }, // Jardim Itapeva
+            { lat: -22.7900, lng: -45.5600 }, // Acampamento dos Palmas / Sul
+            { lat: -22.7150, lng: -45.5500 }, // Monte Carlo / Leste
+            { lat: -22.7100, lng: -45.6100 }, // Vila Umuarama / Noroeste
+            { lat: -22.7800, lng: -45.6500 }  // Vale Oeste
         ];
 
         const locationsData = rawNames.map((name, idx) => {
-            // Distribuir coordenadas em raio em torno de Campos do Jordão
-            const angle = (idx * 137.5) * (Math.PI / 180); // Distribuição espiral áurea
-            const radius = 0.015 + (idx % 7) * 0.008;
-            const lat = baseCoords.lat + radius * Math.cos(angle);
-            const lng = baseCoords.lng + radius * Math.sin(angle);
+            const region = subRegions[idx % subRegions.length];
+            const offsetLat = (Math.sin(idx * 7) * 0.025);
+            const offsetLng = (Math.cos(idx * 5) * 0.025);
+            
+            const lat = region.lat + offsetLat;
+            const lng = region.lng + offsetLng;
 
-            // Níveis e características com base no índice
             const risks = ["baixo", "moderado", "alto", "crítico"];
             const risk = risks[(idx * 3) % 4];
             const rain = ((idx * 7) % 95 + 15) + "mm";
