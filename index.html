@@ -264,14 +264,14 @@
 
     <header>
         <h1>🌲 Serra Amiga: Clima & Alerta Geológico</h1>
-        <p>Campos do Jordão - SP | Monitoramento Sincronizado (45 Localidades: 25 Urbanas e 20 Rurais) - <span id="current-date-header"></span></p>
+        <p>Campos do Jordão - SP | Monitoramento Otimizado (20 Localidades Reais) - <span id="current-date-header"></span></p>
         <div class="sources-info">📡 Dados INPE/CPTEC & Limiares CEMADEN | Limites Oficiais IBGE</div>
     </header>
 
     <!-- Barra de Controles (Seleção de Bairro e Exportação) -->
     <div class="controls-container">
         <select id="neighborhoodSelect" class="filter-select" onchange="filterFromSelect()">
-            <option value="todos">📍 Exibir Todas as 45 Localidades (Visão Geral)</option>
+            <option value="todos">📍 Exibir Todas as 20 Localidades (Visão Geral)</option>
         </select>
         <button class="export-btn" onclick="exportFilteredData()">📥 Exportar Dados (CSV)</button>
     </div>
@@ -321,56 +321,28 @@
         const dateDay3Str = formatDate(addDays(today, 3));
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // COORDENADAS REAIS - 25 Urbanas (Mais Populosas) + 20 Rurais (Significativas)
+        // COORDENADAS REAIS - 20 Bairros mapeados estritamente na geografia de Campos do Jordão
         const rawLocations = [
-            // 25 Bairros Urbanos / Mais Populosos
-            { name: "Vila Abernéssia", lat: -22.7418, lng: -45.5946 },
-            { name: "Vila Capivari", lat: -22.7175, lng: -45.5684 },
-            { name: "Vila Jaguaribe", lat: -22.7272, lng: -45.5844 },
-            { name: "Vila Paulista", lat: -22.7379, lng: -45.5866 },
-            { name: "Vila Albertina", lat: -22.7161, lng: -45.5992 },
-            { name: "Vila Santo Antônio", lat: -22.7450, lng: -45.5950 },
-            { name: "Vila Nadir", lat: -22.7420, lng: -45.5920 },
-            { name: "Vila Umuarama", lat: -22.7420, lng: -45.6100 },
-            { name: "Alto da Boa Vista", lat: -22.7142, lng: -45.5559 },
-            { name: "Morro do Britador", lat: -22.7430, lng: -45.5880 },
-            { name: "Vila Santa Cruz", lat: -22.7360, lng: -45.5980 },
-            { name: "Vila Dom Pedro I", lat: -22.7390, lng: -45.5960 },
-            { name: "Vila Nova", lat: -22.7480, lng: -45.5970 },
-            { name: "Recanto Feliz", lat: -22.7500, lng: -45.5920 },
-            { name: "Água Santa", lat: -22.7460, lng: -45.5990 },
-            { name: "Bela Vista", lat: -22.7330, lng: -45.6050 },
-            { name: "Atalaia", lat: -22.7350, lng: -45.6020 },
-            { name: "Jardim Embaixador", lat: -22.7225, lng: -45.5975 },
-            { name: "Jardim Belvedere", lat: -22.7450, lng: -45.6010 },
-            { name: "Vila Suíça", lat: -22.7150, lng: -45.5600 },
-            { name: "Colinas do Capivari", lat: -22.7120, lng: -45.5680 },
-            { name: "Parque Maristela", lat: -22.7240, lng: -45.5820 },
-            { name: "Jardim Miraflores", lat: -22.7230, lng: -45.5800 },
-            { name: "Vila Campista", lat: -22.7050, lng: -45.5750 },
-            { name: "Monte Carlo", lat: -22.7201, lng: -45.5659 },
-
-            // 20 Bairros Rurais / Áreas Significativas Afastadas
+            { name: "Vila Abernéssia", lat: -22.7380, lng: -45.5910 },
+            { name: "Vila Capivari", lat: -22.7290, lng: -45.5800 },
+            { name: "Vila Jaguaribe", lat: -22.7335, lng: -45.5865 },
+            { name: "Alto do Capivari", lat: -22.7220, lng: -45.5720 },
+            { name: "Recanto Feliz", lat: -22.7485, lng: -45.5950 },
+            { name: "Vila Paulista", lat: -22.7310, lng: -45.5870 },
+            { name: "Vila Albertina", lat: -22.7420, lng: -45.6020 },
+            { name: "Morro do Britador", lat: -22.7350, lng: -45.5980 },
+            { name: "Jardim Embaixador", lat: -22.7300, lng: -45.5960 },
             { name: "Horto Florestal", lat: -22.6853, lng: -45.4745 },
             { name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800 },
-            { name: "Descansópolis", lat: -22.7011, lng: -45.5282 },
-            { name: "Floresta Negra", lat: -22.7700, lng: -45.5800 },
-            { name: "Vale das Araras", lat: -22.7600, lng: -45.6200 },
-            { name: "Retiro", lat: -22.7050, lng: -45.5350 },
-            { name: "Fazenda Boa Vista", lat: -22.7100, lng: -45.5450 },
-            { name: "Alto do Lajeado", lat: -22.7600, lng: -45.6150 },
-            { name: "Bairro dos Mellos", lat: -22.8100, lng: -45.5900 },
-            { name: "Bairro dos Freires", lat: -22.8250, lng: -45.5700 },
-            { name: "Gavião Gonzaga", lat: -22.7850, lng: -45.6400 },
-            { name: "Pedra do Baú (Acesso)", lat: -22.6900, lng: -45.6400 },
-            { name: "Bairro do Fojo", lat: -22.7250, lng: -45.5200 },
-            { name: "Bairro da Lagoinha", lat: -22.7500, lng: -45.5300 },
-            { name: "Bairro do Machadinho", lat: -22.7700, lng: -45.5200 },
-            { name: "Vale da Ferradura", lat: -22.7400, lng: -45.5100 },
-            { name: "Bairro dos Campinas", lat: -22.8150, lng: -45.6000 },
-            { name: "Bairro do Piracuama", lat: -22.8300, lng: -45.6100 },
-            { name: "Aterrado", lat: -22.8000, lng: -45.5800 },
-            { name: "Toriba", lat: -22.7650, lng: -45.5950 }
+            { name: "Descansópolis", lat: -22.7100, lng: -45.5450 },
+            { name: "Alto da Boa Vista", lat: -22.7160, lng: -45.6010 },
+            { name: "Floresta Negra", lat: -22.7680, lng: -45.5800 },
+            { name: "Vila Campista", lat: -22.7050, lng: -45.5750 },
+            { name: "Vila Santo Antônio", lat: -22.7450, lng: -45.5930 },
+            { name: "Vila Nadir", lat: -22.7400, lng: -45.5950 },
+            { name: "Vila Suíça", lat: -22.7210, lng: -45.5850 },
+            { name: "Jardim Miraflores", lat: -22.7260, lng: -45.5820 },
+            { name: "Água Santa", lat: -22.7440, lng: -45.5880 }
         ];
 
         // Processa os dados técnicos
@@ -411,7 +383,7 @@
         });
 
         // Inicializar o Mapa centralizado em Abernéssia
-        const map = L.map('map').setView([-22.7380, -45.5910], 12);
+        const map = L.map('map').setView([-22.7380, -45.5910], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
@@ -447,7 +419,7 @@
         const markersMap = {};
 
         locationsData.forEach(loc => {
-            // Criação do Marcador Geográfico Exato
+            // Criação do Marcador Geográfico
             const circleMarker = L.circleMarker([loc.lat, loc.lng], {
                 radius: 7,
                 fillColor: getRiskColor(loc.risk),
@@ -460,13 +432,9 @@
             circleMarker.bindPopup(`<b>${loc.name}</b><br>Alerta: ${loc.alertMsg}<br>Nível: ${loc.risk.toUpperCase()}`);
             markersMap[loc.name] = circleMarker;
 
-            // Sincronização Vice-Versa: Clicar no marcador no Mapa atualiza o select e filtra a tela
+            // FIX DO BUG: O Clique chama o filtro diretamente passando a flag 'true' para não piscar o popup
             circleMarker.on('click', function() {
-                const selectElement = document.getElementById('neighborhoodSelect');
-                selectElement.value = loc.name;
-                // Dispara o evento 'change' para acionar filterFromSelect e manter a consistência
-                selectElement.dispatchEvent(new Event('change'));
-                setTimeout(() => { this.openPopup(); }, 100);
+                filterAll(loc.name, true);
             });
 
             // Card HTML
@@ -555,14 +523,19 @@
 
         renderHistoryTable('todos');
 
-        // Função de Filtro Acionada pelo Select
+        // Função de Filtro Acionada pela Caixa de Seleção (Passa 'false' para forçar abertura do popup)
         function filterFromSelect() {
             const val = document.getElementById('neighborhoodSelect').value;
-            filterAll(val);
+            filterAll(val, false);
         }
 
-        // Função Central Unificada para Filtrar Cards, Tabela e Focar o Mapa
-        function filterAll(selectedValue) {
+        // Função Central Unificada - Recebe a flag 'fromMapClick' para evitar conflito de popup
+        function filterAll(selectedValue, fromMapClick = false) {
+            
+            // 1. Atualizar a caixa de seleção visualmente (sem disparar eventos circulares)
+            document.getElementById('neighborhoodSelect').value = selectedValue;
+
+            // 2. Filtrar os Cards
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
                 const name = card.getAttribute('data-name');
@@ -573,15 +546,21 @@
                 }
             });
 
+            // 3. Filtrar a Tabela Histórica
             renderHistoryTable(selectedValue);
 
-            // Centralizar e focar Mapa
+            // 4. Centralizar Mapa e tratar Popups
             if (selectedValue !== 'todos' && markersMap[selectedValue]) {
                 const marker = markersMap[selectedValue];
                 map.setView(marker.getLatLng(), 15);
-                marker.openPopup();
+                
+                // Só abre o popup programaticamente se o filtro veio da caixa de seleção.
+                // Se veio do clique, o Leaflet já abriu o popup naturalmente (isso resolve o bug de piscar/não selecionar).
+                if (!fromMapClick) {
+                    marker.openPopup();
+                }
             } else {
-                map.setView([-22.7380, -45.5910], 12);
+                map.setView([-22.7380, -45.5910], 13);
                 map.closePopup();
             }
         }
@@ -600,7 +579,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `historico_tecnico_45_localidades_${selectedValue === 'todos' ? 'todas' : selectedValue.toLowerCase().replace(/ /g, '_')}.csv`);
+            link.setAttribute("download", `historico_tecnico_20_localidades_${selectedValue === 'todos' ? 'todas' : selectedValue.toLowerCase().replace(/ /g, '_')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
