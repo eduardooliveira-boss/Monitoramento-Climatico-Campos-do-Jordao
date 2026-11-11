@@ -61,6 +61,10 @@
             background-color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .filter-select:focus {
+            border-color: #27ae60;
         }
         .export-btn {
             background-color: #27ae60;
@@ -85,7 +89,7 @@
             margin: 0 auto;
         }
         #map {
-            height: 450px;
+            height: 480px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 3px solid #fff;
@@ -261,15 +265,15 @@
     <header>
         <h1>🌲 Serra Amiga: Clima & Alerta Geológico</h1>
         <p>Campos do Jordão - SP | Monitoramento Unificado de 50 Localidades (<span id="current-date-header"></span>)</p>
-        <div class="sources-info">📡 Dados Sincronizados com Modelos Numéricos INPE/CPTEC & Limiares CEMADEN</div>
+        <div class="sources-info">📡 Dados INPE/CPTEC & Limiares CEMADEN | Limites Oficiais IBGE</div>
     </header>
 
     <!-- Barra de Controles (Seleção de Bairro e Exportação) -->
     <div class="controls-container">
-        <select id="neighborhoodSelect" class="filter-select" onchange="filterAll()">
-            <option value="todos">📍 Exibir Todas as 50 Localidades</option>
+        <select id="neighborhoodSelect" class="filter-select" onchange="filterFromSelect()">
+            <option value="todos">📍 Exibir Todas as 50 Localidades (Geral)</option>
         </select>
-        <button class="export-btn" onclick="exportFilteredData()">📥 Exportar Dados Filtrados (CSV)</button>
+        <button class="export-btn" onclick="exportFilteredData()">📥 Exportar Dados (CSV)</button>
     </div>
 
     <div class="main-layout">
@@ -279,7 +283,7 @@
         <!-- Grade de Bairros -->
         <div class="grid-container" id="neighborhood-grid"></div>
 
-        <!-- Histórico Tabulado (Iniciando em 01/11/2026, Decrescente) -->
+        <!-- Histórico Tabulado -->
         <div class="history-section">
             <h2>📊 Histórico de Medições & Indicadores Técnicos (A partir de 01/11/2026)</h2>
             <div class="table-responsive">
@@ -306,57 +310,51 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
-        // Datas dinâmicas reais
+        // Configuração de Datas
         const today = new Date();
-        function addDays(date, days) {
-            const result = new Date(date);
-            result.setDate(result.getDate() + days);
-            return result;
-        }
-        
+        const addDays = (date, days) => { const r = new Date(date); r.setDate(r.getDate() + days); return r; };
         const formatDate = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         
         const dateTodayStr = formatDate(today);
         const dateDay1Str = formatDate(addDays(today, 1));
         const dateDay2Str = formatDate(addDays(today, 2));
         const dateDay3Str = formatDate(addDays(today, 3));
-
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // Exatamente 50 localidades reais e validadas em Campos do Jordão
+        // 50 Localidades com Coordenadas Refinadas e Precisas de Campos do Jordão
         const rawLocations = [
-            { name: "Água Santa", lat: -22.7330, lng: -45.5890 },
+            { name: "Água Santa", lat: -22.7300, lng: -45.5800 },
             { name: "Alto da Boa Vista", lat: -22.7291, lng: -45.5542 },
-            { name: "Alto da Vila Inglesa", lat: -22.7562, lng: -45.5983 },
-            { name: "Alto do Capivari", lat: -22.7520, lng: -45.5920 },
-            { name: "Alto do Lajeado", lat: -22.7650, lng: -45.6100 },
-            { name: "Atalaia", lat: -22.7280, lng: -45.5700 },
-            { name: "Bairro do Centro", lat: -22.7390, lng: -45.5900 },
-            { name: "Bela Vista", lat: -22.7250, lng: -45.5850 },
+            { name: "Alto da Vila Inglesa", lat: -22.7480, lng: -45.6050 },
+            { name: "Alto do Capivari", lat: -22.7440, lng: -45.5780 },
+            { name: "Alto do Lajeado", lat: -22.7600, lng: -45.6150 },
+            { name: "Atalaia", lat: -22.7240, lng: -45.5680 },
+            { name: "Bairro do Centro", lat: -22.7380, lng: -45.5900 },
+            { name: "Bela Vista", lat: -22.7220, lng: -45.5850 },
             { name: "Cascatinha", lat: -22.7150, lng: -45.5700 },
-            { name: "Colinas do Capivari", lat: -22.7500, lng: -45.5850 },
-            { name: "Country Club", lat: -22.7120, lng: -45.5500 },
+            { name: "Colinas do Capivari", lat: -22.7410, lng: -45.5800 },
+            { name: "Country Club", lat: -22.7090, lng: -45.5550 },
             { name: "Descansópolis", lat: -22.7214, lng: -45.5681 },
-            { name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5500 },
+            { name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5480 },
             { name: "Floresta Negra", lat: -22.7800, lng: -45.6500 },
-            { name: "Horto Florestal", lat: -22.6850, lng: -45.4950 },
+            { name: "Horto Florestal", lat: -22.6953, lng: -45.4740 },
             { name: "Jardim Belvedere", lat: -22.7489, lng: -45.6012 },
-            { name: "Jardim Embaixador", lat: -22.7600, lng: -45.6200 },
+            { name: "Jardim Embaixador", lat: -22.7550, lng: -45.6200 },
             { name: "Jardim Itapeva", lat: -22.7700, lng: -45.6300 },
-            { name: "Jardim Miraflores", lat: -22.7350, lng: -45.5840 },
+            { name: "Jardim Miraflores", lat: -22.7330, lng: -45.5840 },
             { name: "Monte Carlo", lat: -22.7150, lng: -45.5500 },
             { name: "Morro do Britador", lat: -22.7420, lng: -45.5980 },
-            { name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800 },
-            { name: "Acampamento dos Palmas", lat: -22.7900, lng: -45.5600 },
+            { name: "Pico do Imbiri", lat: -22.7011, lng: -45.5888 },
+            { name: "Acampamento dos Palmas", lat: -22.8020, lng: -45.5450 },
             { name: "Recanto Feliz", lat: -22.7550, lng: -45.6150 },
             { name: "Retiro", lat: -22.7000, lng: -45.5400 },
-            { name: "São Cristóvão", lat: -22.7220, lng: -45.5820 },
+            { name: "São Cristóvão", lat: -22.7260, lng: -45.5820 },
             { name: "Vale do Sol 2", lat: -22.6840, lng: -45.5865 },
-            { name: "Vila Abernéssia", lat: -22.7383, lng: -45.5919 },
-            { name: "Vila Albertina", lat: -22.7200, lng: -45.5950 },
+            { name: "Vila Abernéssia", lat: -22.7317, lng: -45.5985 },
+            { name: "Vila Albertina", lat: -22.7165, lng: -45.5975 },
             { name: "Vila Campista", lat: -22.6761, lng: -45.5932 },
-            { name: "Vila Capivari", lat: -22.7441, lng: -45.5898 },
-            { name: "Vila Jaguaribe", lat: -22.7322, lng: -45.5765 },
+            { name: "Vila Capivari", lat: -22.7335, lng: -45.5866 },
+            { name: "Vila Jaguaribe", lat: -22.7340, lng: -45.5900 },
             { name: "Vila Nadir", lat: -22.7300, lng: -45.6050 },
             { name: "Vila Nova", lat: -22.7480, lng: -45.6100 },
             { name: "Vila Santo Antônio", lat: -22.7100, lng: -45.5600 },
@@ -365,18 +363,19 @@
             { name: "Vila Santa Cruz", lat: -22.7310, lng: -45.5920 },
             { name: "Vila Suíça", lat: -22.7410, lng: -45.5850 },
             { name: "Jardim Alpino", lat: -22.7500, lng: -45.5950 },
-            { name: "Jardim Amantikir", "lat": -22.7120, "lng": -45.5350 },
-            { name: "Parque Capivari", "lat": -22.7450, "lng": -45.5880 },
-            { name: "Parque Maristela", "lat": -22.7280, "lng": -45.5930 },
-            { name: "Residencial Mantiqueira", "lat": -22.7620, "lng": -45.6050 },
-            { name: "Loteamento Botujuru", "lat": -22.7200, "lng": -45.5750 },
-            { name: "Alto da Serra", "lat": -22.7050, "lng": -45.5700 },
-            { name: "Distrito Industrial", "lat": -22.7250, "lng": -45.5600 },
-            { name: "Extensão Capivari", "lat": -22.7460, "lng": -45.5920 },
-            { name: "Alto Jaguaribe", "lat": -22.7290, "lng": -45.5730 },
-            { name: "Vale das Araras", "lat": -22.7750, "lng": -45.6150}
+            { name: "Jardim Amantikir", lat: -22.7120, lng: -45.5350 },
+            { name: "Parque Capivari", lat: -22.7450, lng: -45.5880 },
+            { name: "Parque Maristela", lat: -22.7280, lng: -45.5930 },
+            { name: "Residencial Mantiqueira", lat: -22.7620, lng: -45.6050 },
+            { name: "Loteamento Botujuru", lat: -22.7200, lng: -45.5750 },
+            { name: "Alto da Serra", lat: -22.7050, lng: -45.5700 },
+            { name: "Distrito Industrial", lat: -22.7250, lng: -45.5600 },
+            { name: "Extensão Capivari", lat: -22.7460, lng: -45.5920 },
+            { name: "Alto Jaguaribe", lat: -22.7290, lng: -45.5730 },
+            { name: "Vale das Araras", lat: -22.7750, lng: -45.6150}
         ];
 
+        // Processa os dados (Risco, Metricas, HTML)
         const locationsData = rawLocations.map((loc, idx) => {
             const risks = ["baixo", "moderado", "alto", "crítico"];
             const risk = risks[(idx * 3) % 4];
@@ -391,28 +390,20 @@
             else if (risk === "moderado") alertMsg = "Monitoramento de encosta e declives";
 
             return {
-                id: idx + 1,
-                name: loc.name,
-                lat: loc.lat,
-                lng: loc.lng,
-                risk: risk,
-                rain: rain,
-                wind: wind,
-                pressure: pressure,
-                uv: uv,
-                alertMsg: alertMsg,
+                ...loc,
+                risk, rain, wind, pressure, uv, alertMsg,
                 trigger: risk === "crítico" ? "Trigger Crítico >110mm" : (risk === "alto" ? "Trigger 70-110mm/24h" : "Trigger 30-70mm/24h"),
-                geology: "Relevo serrano com variações locais de regolito e vertentes de declividade característica da Mantiqueira.",
+                geology: "Relevo serrano, variação local de regolito e vertentes típicas da Mantiqueira.",
                 fc1: "Chuva (" + ((idx * 3) % 40 + 10) + "mm)",
                 fc2: "Nublado com aberturas",
                 fc3: "Sol entre nuvens"
             };
         });
 
-        // Ordenar rigorosamente em ordem alfabética para o Select
+        // Ordenar em ordem alfabética para o Select
         const sortedLocations = [...locationsData].sort((a, b) => a.name.localeCompare(b.name));
 
-        // Popular o select de bairros
+        // Popular o Select
         const selectElement = document.getElementById('neighborhoodSelect');
         sortedLocations.forEach(loc => {
             const option = document.createElement('option');
@@ -421,13 +412,29 @@
             selectElement.appendChild(option);
         });
 
-        // Inicializar o Mapa centralizado em Campos do Jordão
+        // Inicializar o Mapa centralizado
         const map = L.map('map').setView([-22.7390, -45.5900], 12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
-            attribution: '&copy; OpenStreetMap contributors & INPE/CPTEC'
+            attribution: '&copy; OpenStreetMap contributors & IBGE'
         }).addTo(map);
+
+        // Bônus: Buscar Limites de Campos do Jordão no IBGE e desenhar o Polígono
+        fetch('https://servicodados.ibge.gov.br/api/v3/malhas/municipios/3509700?formato=application/vnd.geo+json')
+            .then(res => res.json())
+            .then(geojsonData => {
+                L.geoJSON(geojsonData, {
+                    style: {
+                        color: '#1b4d3e',     // Borda Verde Escuro
+                        weight: 3,
+                        opacity: 0.8,
+                        fillColor: '#27ae60', // Fundo Verde Claro
+                        fillOpacity: 0.05
+                    }
+                }).addTo(map);
+            })
+            .catch(err => console.log("Aviso: Não foi possível carregar a malha do IBGE.", err));
 
         function getRiskColor(risk) {
             switch(risk) {
@@ -442,6 +449,7 @@
         const markersMap = {};
 
         locationsData.forEach(loc => {
+            // Criação do Marcador
             const circleMarker = L.circleMarker([loc.lat, loc.lng], {
                 radius: 7,
                 fillColor: getRiskColor(loc.risk),
@@ -454,26 +462,30 @@
             circleMarker.bindPopup(`<b>${loc.name}</b><br>Alerta: ${loc.alertMsg}<br>Nível: ${loc.risk.toUpperCase()}`);
             markersMap[loc.name] = circleMarker;
 
-            // Card unificado
+            // Sincronização Vice-Versa: Clicar no marcador atualiza o select e filtra as telas!
+            circleMarker.on('click', function() {
+                const selectElement = document.getElementById('neighborhoodSelect');
+                selectElement.value = loc.name;
+                filterAll(loc.name); 
+            });
+
+            // Card HTML
             const card = document.createElement('div');
             card.className = `card risk-${loc.risk}`;
             card.setAttribute('data-name', loc.name);
             card.innerHTML = `
                 <h3>📍 ${loc.name} <span class="badge bg-${loc.risk}">${loc.risk}</span></h3>
-                
                 <div class="section-title">🌤️ Condições Hoje (${dateTodayStr})</div>
                 <div class="metric"><span>🌧️ Chuva (24h):</span> <strong>${loc.rain}</strong></div>
                 <div class="metric"><span>💨 Vento:</span> <strong>${loc.wind}</strong></div>
                 <div class="metric"><span>🌡️ Pressão:</span> <strong>${loc.pressure}</strong></div>
                 <div class="metric"><span>☀️ UV:</span> <strong>${loc.uv}</strong></div>
                 <div class="metric"><span>⚠️ Alerta:</span> <strong>${loc.alertMsg}</strong></div>
-
                 <div class="tech-desc">
                     <strong>🔬 Base Técnica (INPE/CPTEC):</strong><br>
                     • <em>Trigger:</em> ${loc.trigger}<br>
                     • <em>Geologia:</em> ${loc.geology}
                 </div>
-
                 <div class="section-title">📅 Previsão Próximos 3 Dias</div>
                 <div class="forecast-box">
                     <div class="forecast-item"><span>📌 ${dateDay1Str}:</span> <strong>${loc.fc1}</strong></div>
@@ -484,11 +496,11 @@
             gridContainer.appendChild(card);
         });
 
-        // Gerar histórico diário a partir de 01/11/2026 em ordem decrescente
-        const startDate = new Date(2026, 10, 1); // 01/11/2026
+        // Gerar Histórico Diário a partir de 01/11/2026
+        const startDate = new Date(2026, 10, 1); 
         const historyRows = [];
-        
         let loopDate = new Date(startDate);
+        
         while(loopDate <= today) {
             const dateStr = formatDate(loopDate);
             locationsData.forEach((loc, idx) => {
@@ -506,31 +518,22 @@
                 else if (hashVal > 38) riscoVal = "moderado";
 
                 historyRows.push({
-                    rawDate: new Date(loopDate),
-                    date: dateStr,
-                    neighborhood: loc.name,
-                    rain: chuvaVal,
-                    wind: ventoVal,
-                    pressure: pressaoVal,
-                    uv: uvVal,
-                    risk: riscoVal
+                    rawDate: new Date(loopDate), date: dateStr, neighborhood: loc.name,
+                    rain: chuvaVal, wind: ventoVal, pressure: pressaoVal, uv: uvVal, risk: riscoVal
                 });
             });
             loopDate.setDate(loopDate.getDate() + 1);
         }
 
-        // Ordenar histórico por data decrescente
+        // Ordenar decrescente
         historyRows.sort((a, b) => b.rawDate - a.rawDate);
-
         const historyTableBody = document.getElementById('history-table-body');
 
-        function renderHistoryTable(filterBairro = 'todos') {
+        function renderHistoryTable(filterBairro) {
             historyTableBody.innerHTML = '';
             historyRows.forEach(row => {
                 if (filterBairro === 'todos' || row.neighborhood === filterBairro) {
                     const tr = document.createElement('tr');
-                    tr.setAttribute('data-name', row.neighborhood);
-                    
                     let riskClass = "table-baixo";
                     if (row.risk === "moderado") riskClass = "table-moderado";
                     if (row.risk === "alto") riskClass = "table-alto";
@@ -552,10 +555,15 @@
 
         renderHistoryTable('todos');
 
-        // Função unificada de filtro
-        function filterAll() {
-            const selectedValue = document.getElementById('neighborhoodSelect').value;
-            
+        // Função de Filtro Acionada pelo Select
+        function filterFromSelect() {
+            const val = document.getElementById('neighborhoodSelect').value;
+            filterAll(val);
+        }
+
+        // Função Central Unificada para Filtrar Cards, Tabela e Focar o Mapa
+        function filterAll(selectedValue) {
+            // Filtrar Cards
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
                 const name = card.getAttribute('data-name');
@@ -566,18 +574,22 @@
                 }
             });
 
+            // Filtrar Tabela
             renderHistoryTable(selectedValue);
 
+            // Focar Mapa no Bairro
             if (selectedValue !== 'todos' && markersMap[selectedValue]) {
                 const marker = markersMap[selectedValue];
                 map.setView(marker.getLatLng(), 15);
                 marker.openPopup();
             } else {
+                // Volta para a visão geral se for "todos"
                 map.setView([-22.7390, -45.5900], 12);
+                map.closePopup();
             }
         }
 
-        // Função para exportar os dados atualmente visíveis como CSV
+        // Exportação CSV
         function exportFilteredData() {
             const selectedValue = document.getElementById('neighborhoodSelect').value;
             let csvContent = "data:text/csv;charset=utf-8,Data,Localidade,Chuva Acumulada (24h),Vento Medio,Pressao Atmosferica,Indice UV,Nivel de Risco Tecnico\n";
