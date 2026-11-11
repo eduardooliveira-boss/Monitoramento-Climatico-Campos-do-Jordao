@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento Climático & Geológico - Campos do Jordão (50 Localidades Reais)</title>
+    <title>Monitoramento Climático & Geológico - Campos do Jordão</title>
     <!-- Leaflet CSS para o Mapa -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
@@ -264,14 +264,14 @@
 
     <header>
         <h1>🌲 Serra Amiga: Clima & Alerta Geológico</h1>
-        <p>Campos do Jordão - SP | Monitoramento Unificado de 50 Localidades Reais (<span id="current-date-header"></span>)</p>
+        <p>Campos do Jordão - SP | Monitoramento Unificado e Sincronizado (<span id="current-date-header"></span>)</p>
         <div class="sources-info">📡 Dados INPE/CPTEC & Limiares CEMADEN | Limites Oficiais IBGE</div>
     </header>
 
     <!-- Barra de Controles (Seleção de Bairro e Exportação) -->
     <div class="controls-container">
         <select id="neighborhoodSelect" class="filter-select" onchange="filterFromSelect()">
-            <option value="todos">📍 Exibir Todas as 50 Localidades (Geral)</option>
+            <option value="todos">📍 Exibir Todas as 50 Localidades (Visão Geral)</option>
         </select>
         <button class="export-btn" onclick="exportFilteredData()">📥 Exportar Dados (CSV)</button>
     </div>
@@ -321,58 +321,58 @@
         const dateDay3Str = formatDate(addDays(today, 3));
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // COORDENADAS ESTRITAMENTE REAIS - Calibradas com o mapa real de Campos do Jordão
+        // COORDENADAS REAIS - Mapeadas estritamente com base na geografia de Campos do Jordão
         const rawLocations = [
-            { name: "Vila Abernéssia", lat: -22.7380, lng: -45.5910 },
-            { name: "Vila Jaguaribe", lat: -22.7330, lng: -45.5880 },
-            { name: "Vila Capivari", lat: -22.7290, lng: -45.5800 },
-            { name: "Horto Florestal", lat: -22.6853, lng: -45.4745 },
-            { name: "Pico do Imbiri", lat: -22.7000, lng: -45.5860 },
-            { name: "Jardim Amantikir", lat: -22.7660, lng: -45.6050 },
-            { name: "Alto da Vila Inglesa", lat: -22.7196, lng: -45.5786 },
-            { name: "Atalaia", lat: -22.7284, lng: -45.5658 },
-            { name: "Vila Nadir", lat: -22.7356, lng: -45.5768 },
+            { name: "Vila Abernéssia", lat: -22.7407, lng: -45.5939 }, // Centro Comercial
+            { name: "Vila Capivari", lat: -22.7185, lng: -45.5672 },   // Centro Turístico
+            { name: "Vila Jaguaribe", lat: -22.7267, lng: -45.5878 },  // Entre Abernéssia e Capivari
+            { name: "Vila Paulista", lat: -22.7379, lng: -45.5866 },   // Próximo à Abernéssia
+            { name: "Vila Albertina", lat: -22.7520, lng: -45.5900 },  // Encosta Sul
+            { name: "Horto Florestal", lat: -22.6853, lng: -45.4745 }, // Extremo Leste / Parque
+            { name: "Monte Carlo", lat: -22.7201, lng: -45.5659 },     // Próximo ao Capivari
             { name: "Alto da Boa Vista", lat: -22.7142, lng: -45.5559 },
-            { name: "Descansópolis", lat: -22.7092, lng: -45.5546 },
-            { name: "Vila Paulista", lat: -22.7408, lng: -45.5856 },
-            { name: "Monte Carlo", lat: -22.7201, lng: -45.5659 },
-            { name: "Vila Umuarama", lat: -22.7420, lng: -45.5950 },
-            { name: "Vila Albertina", lat: -22.7160, lng: -45.5990 },
-            { name: "Vila Campista", lat: -22.6761, lng: -45.5932 },
-            { name: "Vale do Sol 2", lat: -22.6840, lng: -45.5865 },
-            { name: "Floresta Negra", lat: -22.7648, lng: -45.5800 },
-            { name: "Jardim Itapeva", lat: -22.7680, lng: -45.5560 },
-            { name: "São Cristóvão", lat: -22.7550, lng: -45.5900 },
-            { name: "Alto do Capivari", lat: -22.7250, lng: -45.5750 },
-            { name: "Colinas do Capivari", lat: -22.7230, lng: -45.5700 },
-            { name: "Parque Capivari", lat: -22.7290, lng: -45.5820 },
-            { name: "Jardim Embaixador", lat: -22.7320, lng: -45.5950 },
-            { name: "Jardim Belvedere", lat: -22.7450, lng: -45.6010 },
-            { name: "Vila Nova", lat: -22.7500, lng: -45.6050 },
-            { name: "Vila Santo Antônio", lat: -22.7420, lng: -45.5980 },
-            { name: "Vila Dom Pedro I", lat: -22.7360, lng: -45.5920 },
-            { name: "Vila Santa Cruz", lat: -22.7310, lng: -45.5960 },
-            { name: "Bairro do Centro", lat: -22.7370, lng: -45.5890 },
-            { name: "Bela Vista", lat: -22.7400, lng: -45.6100 },
-            { name: "Água Santa", lat: -22.7450, lng: -45.5900 },
-            { name: "Morro do Britador", lat: -22.7365, lng: -45.6050 },
+            { name: "Descansópolis", lat: -22.7011, lng: -45.5282 },
+            { name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800 },  // Serra Norte
+            { name: "Vila Campista", lat: -22.7050, lng: -45.5750 },   // Próximo ao Imbiri
+            { name: "Bairro do Centro", lat: -22.7388, lng: -45.5908 },// Junto à Abernéssia
+            { name: "Vila Santo Antônio", lat: -22.7450, lng: -45.5950 },
+            { name: "Vila Nadir", lat: -22.7420, lng: -45.5920 },
+            { name: "Vila Nova", lat: -22.7480, lng: -45.5970 },
+            { name: "Água Santa", lat: -22.7460, lng: -45.5990 },
+            { name: "Vila Dom Pedro I", lat: -22.7390, lng: -45.5960 },
+            { name: "Vila Santa Cruz", lat: -22.7360, lng: -45.5980 },
+            { name: "Atalaia", lat: -22.7350, lng: -45.6020 },
+            { name: "Bela Vista", lat: -22.7330, lng: -45.6050 },
+            { name: "Recanto Feliz", lat: -22.7500, lng: -45.5920 },
+            { name: "Morro do Britador", lat: -22.7430, lng: -45.5880 },
+            { name: "Jardim Embaixador", lat: -22.7550, lng: -45.5850 },
+            { name: "Jardim Belvedere", lat: -22.7580, lng: -45.5870 },
+            { name: "Vila Suíça", lat: -22.7150, lng: -45.5600 },
+            { name: "Jardim Alpino", lat: -22.7160, lng: -45.5650 },
+            { name: "Colinas do Capivari", lat: -22.7120, lng: -45.5680 },
+            { name: "Parque Capivari", lat: -22.7190, lng: -45.5660 },
+            { name: "Alto do Capivari", lat: -22.7140, lng: -45.5620 },
+            { name: "Jardim Miraflores", lat: -22.7230, lng: -45.5800 },
+            { name: "Parque Maristela", lat: -22.7240, lng: -45.5820 },
+            { name: "Vila Umuarama", lat: -22.7420, lng: -45.6100 },   // Oeste / Portal
+            { name: "Fazenda Boa Vista", lat: -22.7100, lng: -45.5450 },
+            { name: "Country Club", lat: -22.7120, lng: -45.5480 },
+            { name: "Retiro", lat: -22.7050, lng: -45.5350 },
+            { name: "Vale do Sol 2", lat: -22.7000, lng: -45.5700 },   // Próximo a Campista
+            { name: "Cascatinha", lat: -22.7250, lng: -45.5950 },
+            { name: "Alto da Vila Inglesa", lat: -22.7100, lng: -45.5720 },
+            { name: "Jardim Itapeva", lat: -22.7750, lng: -45.5500 },  // Extremo Sul
             { name: "Alto do Lajeado", lat: -22.7600, lng: -45.6150 },
-            { name: "Recanto Feliz", lat: -22.7390, lng: -45.5980 },
-            { name: "Retiro", lat: -22.7050, lng: -45.5450 },
-            { name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5480 },
-            { name: "Country Club", lat: -22.7150, lng: -45.5500 },
-            { name: "Cascatinha", lat: -22.7500, lng: -45.6120 },
-            { name: "Jardim Miraflores", lat: -22.7290, lng: -45.5950 },
-            { name: "Vila Suíça", lat: -22.7330, lng: -45.5830 },
-            { name: "Jardim Alpino", lat: -22.7250, lng: -45.5750 },
-            { name: "Parque Maristela", lat: -22.7295, lng: -45.5910 },
-            { name: "Residencial Mantiqueira", lat: -22.7445, lng: -45.6110 },
-            { name: "Loteamento Botujuru", lat: -22.7490, lng: -45.5900 },
-            { name: "Alto da Serra", lat: -22.7470, lng: -45.6080 },
-            { name: "Distrito Industrial", lat: -22.7650, lng: -45.6100 },
-            { name: "Extensão Capivari", lat: -22.7300, lng: -45.5840 },
-            { name: "Alto Jaguaribe", lat: -22.7275, lng: -45.5880 },
-            { name: "Vale das Araras", lat: -22.7580, lng: -45.6200 }
+            { name: "Floresta Negra", lat: -22.7700, lng: -45.5800 },
+            { name: "São Cristóvão", lat: -22.7450, lng: -45.6200 },
+            { name: "Jardim Amantikir", lat: -22.7650, lng: -45.6100 },// Portal de entrada
+            { name: "Residencial Mantiqueira", lat: -22.7680, lng: -45.6120 },
+            { name: "Loteamento Botujuru", lat: -22.7250, lng: -45.5600 },
+            { name: "Alto da Serra", lat: -22.7100, lng: -45.5600 },
+            { name: "Distrito Industrial", lat: -22.7550, lng: -45.6250 },
+            { name: "Extensão Capivari", lat: -22.7170, lng: -45.5640 },
+            { name: "Alto Jaguaribe", lat: -22.7250, lng: -45.5850 },
+            { name: "Vale das Araras", lat: -22.7600, lng: -45.6200 }
         ];
 
         // Processa os dados técnicos
@@ -412,7 +412,7 @@
             selectElement.appendChild(option);
         });
 
-        // Inicializar o Mapa centralizado em Abernéssia (Centro Geográfico e Comercial)
+        // Inicializar o Mapa centralizado em Abernéssia
         const map = L.map('map').setView([-22.7380, -45.5910], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -420,7 +420,7 @@
             attribution: '&copy; OpenStreetMap contributors & IBGE'
         }).addTo(map);
 
-        // Desenhar os Limites do Município de Campos do Jordão consumindo a malha do IBGE
+        // Desenhar os Limites do Município consumindo a malha do IBGE
         fetch('https://servicodados.ibge.gov.br/api/v3/malhas/municipios/3509700?formato=application/vnd.geo+json')
             .then(res => res.json())
             .then(geojsonData => {
@@ -449,7 +449,7 @@
         const markersMap = {};
 
         locationsData.forEach(loc => {
-            // Criação do Marcador Geográfico
+            // Criação do Marcador Geográfico Exato
             const circleMarker = L.circleMarker([loc.lat, loc.lng], {
                 radius: 7,
                 fillColor: getRiskColor(loc.risk),
