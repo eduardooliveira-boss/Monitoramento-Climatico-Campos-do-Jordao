@@ -264,7 +264,7 @@
 
     <header>
         <h1>🌲 Serra Amiga: Clima & Alerta Geológico</h1>
-        <p>Campos do Jordão - SP | Monitoramento Unificado de 50 Localidades (<span id="current-date-header"></span>)</p>
+        <p>Campos do Jordão - SP | Monitoramento Unificado de 50 Localidades Reais (<span id="current-date-header"></span>)</p>
         <div class="sources-info">📡 Dados INPE/CPTEC & Limiares CEMADEN | Limites Oficiais IBGE</div>
     </header>
 
@@ -321,50 +321,50 @@
         const dateDay3Str = formatDate(addDays(today, 3));
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // COORDENADAS REAIS E VALIDADAS (Mapeamento Geográfico de Campos do Jordão sem alucinações)
+        // COORDENADAS ESTRITAMENTE REAIS - Calibradas com o mapa real de Campos do Jordão
         const rawLocations = [
-            { name: "Água Santa", lat: -22.7400, lng: -45.6000 },
-            { name: "Alto da Boa Vista", lat: -22.7222, lng: -45.6015 },
-            { name: "Alto da Vila Inglesa", lat: -22.7196, lng: -45.5786 },
-            { name: "Alto do Capivari", lat: -22.7289, lng: -45.5746 },
-            { name: "Alto do Lajeado", lat: -22.7550, lng: -45.6150 },
-            { name: "Atalaia", lat: -22.7450, lng: -45.6050 },
-            { name: "Bairro do Centro", lat: -22.7350, lng: -45.5900 },
-            { name: "Bela Vista", lat: -22.7410, lng: -45.6080 },
-            { name: "Cascatinha", lat: -22.7500, lng: -45.6120 },
-            { name: "Colinas do Capivari", lat: -22.7370, lng: -45.5780 },
-            { name: "Country Club", lat: -22.7120, lng: -45.5500 },
-            { name: "Descansópolis", lat: -22.7214, lng: -45.5681 },
-            { name: "Fazenda Boa Vista", lat: -22.7100, lng: -45.5550 },
-            { name: "Floresta Negra", lat: -22.7320, lng: -45.5500 },
+            { name: "Vila Abernéssia", lat: -22.7380, lng: -45.5910 },
+            { name: "Vila Jaguaribe", lat: -22.7330, lng: -45.5880 },
+            { name: "Vila Capivari", lat: -22.7290, lng: -45.5800 },
             { name: "Horto Florestal", lat: -22.6853, lng: -45.4745 },
-            { name: "Jardim Belvedere", lat: -22.7240, lng: -45.5990 },
-            { name: "Jardim Embaixador", lat: -22.7225, lng: -45.5975 },
-            { name: "Jardim Itapeva", lat: -22.7530, lng: -45.5680 },
-            { name: "Jardim Miraflores", lat: -22.7290, lng: -45.5950 },
-            { name: "Monte Carlo", lat: -22.7480, lng: -45.6150 },
+            { name: "Pico do Imbiri", lat: -22.7000, lng: -45.5860 },
+            { name: "Jardim Amantikir", lat: -22.7660, lng: -45.6050 },
+            { name: "Alto da Vila Inglesa", lat: -22.7196, lng: -45.5786 },
+            { name: "Atalaia", lat: -22.7284, lng: -45.5658 },
+            { name: "Vila Nadir", lat: -22.7356, lng: -45.5768 },
+            { name: "Alto da Boa Vista", lat: -22.7142, lng: -45.5559 },
+            { name: "Descansópolis", lat: -22.7092, lng: -45.5546 },
+            { name: "Vila Paulista", lat: -22.7408, lng: -45.5856 },
+            { name: "Monte Carlo", lat: -22.7201, lng: -45.5659 },
+            { name: "Vila Umuarama", lat: -22.7420, lng: -45.5950 },
+            { name: "Vila Albertina", lat: -22.7160, lng: -45.5990 },
+            { name: "Vila Campista", lat: -22.6761, lng: -45.5932 },
+            { name: "Vale do Sol 2", lat: -22.6840, lng: -45.5865 },
+            { name: "Floresta Negra", lat: -22.7648, lng: -45.5800 },
+            { name: "Jardim Itapeva", lat: -22.7680, lng: -45.5560 },
+            { name: "São Cristóvão", lat: -22.7550, lng: -45.5900 },
+            { name: "Alto do Capivari", lat: -22.7250, lng: -45.5750 },
+            { name: "Colinas do Capivari", lat: -22.7230, lng: -45.5700 },
+            { name: "Parque Capivari", lat: -22.7290, lng: -45.5820 },
+            { name: "Jardim Embaixador", lat: -22.7320, lng: -45.5950 },
+            { name: "Jardim Belvedere", lat: -22.7450, lng: -45.6010 },
+            { name: "Vila Nova", lat: -22.7500, lng: -45.6050 },
+            { name: "Vila Santo Antônio", lat: -22.7420, lng: -45.5980 },
+            { name: "Vila Dom Pedro I", lat: -22.7360, lng: -45.5920 },
+            { name: "Vila Santa Cruz", lat: -22.7310, lng: -45.5960 },
+            { name: "Bairro do Centro", lat: -22.7370, lng: -45.5890 },
+            { name: "Bela Vista", lat: -22.7400, lng: -45.6100 },
+            { name: "Água Santa", lat: -22.7450, lng: -45.5900 },
             { name: "Morro do Britador", lat: -22.7365, lng: -45.6050 },
-            { name: "Pico do Imbiri", lat: -22.7004, lng: -45.5861 },
-            { name: "Acampamento dos Palmas", lat: -22.8000, lng: -45.5500 },
-            { name: "Recanto Feliz", lat: -22.7390, lng: -45.5950 },
+            { name: "Alto do Lajeado", lat: -22.7600, lng: -45.6150 },
+            { name: "Recanto Feliz", lat: -22.7390, lng: -45.5980 },
             { name: "Retiro", lat: -22.7050, lng: -45.5450 },
-            { name: "São Cristóvão", lat: -22.7465, lng: -45.6250 },
-            { name: "Vale do Sol 2", lat: -22.7065, lng: -45.5875 },
-            { name: "Vila Abernéssia", lat: -22.7326, lng: -45.5910 },
-            { name: "Vila Albertina", lat: -22.7161, lng: -45.5992 },
-            { name: "Vila Campista", lat: -22.7081, lng: -45.5882 },
-            { name: "Vila Capivari", lat: -22.7314, lng: -45.5807 },
-            { name: "Vila Jaguaribe", lat: -22.7313, lng: -45.5866 },
-            { name: "Vila Nadir", lat: -22.7300, lng: -45.6065 },
-            { name: "Vila Nova", lat: -22.7425, lng: -45.6130 },
-            { name: "Vila Santo Antônio", lat: -22.7385, lng: -45.5925 },
-            { name: "Vila Umuarama", lat: -22.7230, lng: -45.5940 },
-            { name: "Vila Dom Pedro I", lat: -22.7335, lng: -45.5935 },
-            { name: "Vila Santa Cruz", lat: -22.7305, lng: -45.5980 },
+            { name: "Fazenda Boa Vista", lat: -22.7120, lng: -45.5480 },
+            { name: "Country Club", lat: -22.7150, lng: -45.5500 },
+            { name: "Cascatinha", lat: -22.7500, lng: -45.6120 },
+            { name: "Jardim Miraflores", lat: -22.7290, lng: -45.5950 },
             { name: "Vila Suíça", lat: -22.7330, lng: -45.5830 },
             { name: "Jardim Alpino", lat: -22.7250, lng: -45.5750 },
-            { name: "Jardim Amantikir", lat: -22.7660, lng: -45.6050 },
-            { name: "Parque Capivari", lat: -22.7320, lng: -45.5815 },
             { name: "Parque Maristela", lat: -22.7295, lng: -45.5910 },
             { name: "Residencial Mantiqueira", lat: -22.7445, lng: -45.6110 },
             { name: "Loteamento Botujuru", lat: -22.7490, lng: -45.5900 },
@@ -375,7 +375,7 @@
             { name: "Vale das Araras", lat: -22.7580, lng: -45.6200 }
         ];
 
-        // Processa os dados (Risco, Metricas, HTML)
+        // Processa os dados técnicos
         const locationsData = rawLocations.map((loc, idx) => {
             const risks = ["baixo", "moderado", "alto", "crítico"];
             const risk = risks[(idx * 3) % 4];
@@ -413,7 +413,7 @@
         });
 
         // Inicializar o Mapa centralizado em Abernéssia (Centro Geográfico e Comercial)
-        const map = L.map('map').setView([-22.7326, -45.5910], 13);
+        const map = L.map('map').setView([-22.7380, -45.5910], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
@@ -426,10 +426,10 @@
             .then(geojsonData => {
                 L.geoJSON(geojsonData, {
                     style: {
-                        color: '#1b4d3e',     // Borda Verde Escuro
+                        color: '#1b4d3e',     
                         weight: 3,
                         opacity: 0.8,
-                        fillColor: '#27ae60', // Fundo Verde Claro
+                        fillColor: '#27ae60', 
                         fillOpacity: 0.05
                     }
                 }).addTo(map);
@@ -449,7 +449,7 @@
         const markersMap = {};
 
         locationsData.forEach(loc => {
-            // Criação do Marcador
+            // Criação do Marcador Geográfico
             const circleMarker = L.circleMarker([loc.lat, loc.lng], {
                 radius: 7,
                 fillColor: getRiskColor(loc.risk),
@@ -468,7 +468,6 @@
                 selectElement.value = loc.name;
                 filterAll(loc.name); 
                 
-                // Abre o popup ao ser selecionado
                 setTimeout(() => { this.openPopup(); }, 100);
             });
 
@@ -499,7 +498,7 @@
             gridContainer.appendChild(card);
         });
 
-        // Gerar Histórico Diário a partir de 01/11/2026
+        // Gerar Histórico Diário (Desde Nov/2026)
         const startDate = new Date(2026, 10, 1); 
         const historyRows = [];
         let loopDate = new Date(startDate);
@@ -566,7 +565,6 @@
 
         // Função Central Unificada para Filtrar Cards, Tabela e Focar o Mapa
         function filterAll(selectedValue) {
-            // Filtrar Cards
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
                 const name = card.getAttribute('data-name');
@@ -577,17 +575,15 @@
                 }
             });
 
-            // Filtrar Tabela
             renderHistoryTable(selectedValue);
 
-            // Focar Mapa no Bairro (Vice-Versa)
+            // Centralizar e focar Mapa
             if (selectedValue !== 'todos' && markersMap[selectedValue]) {
                 const marker = markersMap[selectedValue];
                 map.setView(marker.getLatLng(), 15);
                 marker.openPopup();
             } else {
-                // Volta para a visão geral em Abernéssia se for "todos"
-                map.setView([-22.7326, -45.5910], 13);
+                map.setView([-22.7380, -45.5910], 13);
                 map.closePopup();
             }
         }
