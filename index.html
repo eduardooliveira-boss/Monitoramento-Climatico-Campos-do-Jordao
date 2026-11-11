@@ -321,19 +321,20 @@
         const dateDay3Str = formatDate(addDays(today, 3));
         document.getElementById('current-date-header').innerText = `Hoje: ${dateTodayStr}`;
 
-        // COORDENADAS REAIS - Mapeadas estritamente com base na geografia de Campos do Jordão
+        // COORDENADAS REAIS - Mapeadas com base em fontes como Mapcarta, IBGE e guias locais
+        // para melhor representar a localização geográfica de cada bairro de Campos do Jordão.
         const rawLocations = [
-            { name: "Vila Abernéssia", lat: -22.7407, lng: -45.5939 }, // Centro Comercial
-            { name: "Vila Capivari", lat: -22.7185, lng: -45.5672 },   // Centro Turístico
-            { name: "Vila Jaguaribe", lat: -22.7267, lng: -45.5878 },  // Entre Abernéssia e Capivari
-            { name: "Vila Paulista", lat: -22.7379, lng: -45.5866 },   // Próximo à Abernéssia
-            { name: "Vila Albertina", lat: -22.7520, lng: -45.5900 },  // Encosta Sul
-            { name: "Horto Florestal", lat: -22.6853, lng: -45.4745 }, // Extremo Leste / Parque
-            { name: "Monte Carlo", lat: -22.7201, lng: -45.5659 },     // Próximo ao Capivari
-            { name: "Alto da Boa Vista", lat: -22.7142, lng: -45.5559 },
+            { name: "Vila Abernéssia", lat: -22.74186, lng: -45.59465 }, // Centro Comercial
+            { name: "Vila Capivari", lat: -22.71752, lng: -45.56844 },   // Centro Turístico
+            { name: "Vila Jaguaribe", lat: -22.72725, lng: -45.58444 },  // Entre Abernéssia e Capivari
+            { name: "Vila Paulista", lat: -22.7379, lng: -45.5866 },    // Próximo à Abernéssia
+            { name: "Vila Albertina", lat: -22.75542, lng: -45.60284 },  // Encosta Sul
+            { name: "Horto Florestal", lat: -22.6853, lng: -45.4745 },   // Extremo Leste / Parque
+            { name: "Monte Carlo", lat: -22.7201, lng: -45.5659 },      // Próximo ao Capivari
+            { name: "Alto da Boa Vista", lat: -22.7360577, lng: -45.6193125 },
             { name: "Descansópolis", lat: -22.7011, lng: -45.5282 },
-            { name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800 },  // Serra Norte
-            { name: "Vila Campista", lat: -22.7050, lng: -45.5750 },   // Próximo ao Imbiri
+            { name: "Pico do Imbiri", lat: -22.6950, lng: -45.5800 },    // Serra Norte
+            { name: "Vila Campista", lat: -22.67612, lng: -45.5932 },   // Próximo ao Imbiri
             { name: "Bairro do Centro", lat: -22.7388, lng: -45.5908 },// Junto à Abernéssia
             { name: "Vila Santo Antônio", lat: -22.7450, lng: -45.5950 },
             { name: "Vila Nadir", lat: -22.7420, lng: -45.5920 },
@@ -345,7 +346,7 @@
             { name: "Bela Vista", lat: -22.7330, lng: -45.6050 },
             { name: "Recanto Feliz", lat: -22.7500, lng: -45.5920 },
             { name: "Morro do Britador", lat: -22.7430, lng: -45.5880 },
-            { name: "Jardim Embaixador", lat: -22.7550, lng: -45.5850 },
+            { name: "Jardim Embaixador", lat: -22.70905, lng: -45.56113 },
             { name: "Jardim Belvedere", lat: -22.7580, lng: -45.5870 },
             { name: "Vila Suíça", lat: -22.7150, lng: -45.5600 },
             { name: "Jardim Alpino", lat: -22.7160, lng: -45.5650 },
@@ -466,8 +467,8 @@
             circleMarker.on('click', function() {
                 const selectElement = document.getElementById('neighborhoodSelect');
                 selectElement.value = loc.name;
-                filterAll(loc.name); 
-                
+                // Dispara o evento 'change' para acionar filterFromSelect e manter a consistência
+                selectElement.dispatchEvent(new Event('change'));
                 setTimeout(() => { this.openPopup(); }, 100);
             });
 
